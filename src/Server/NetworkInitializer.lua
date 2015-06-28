@@ -12,6 +12,7 @@ local DOORS_ENABLED = true
 local TRANSPORTERS_ENABLED = true
 local CONSOLES_ENABLED = true
 local TRAIN_ENABLED = true
+local OVERRIDE_ENABLED = true
 
 --------
 -- Header end
@@ -83,9 +84,17 @@ createNetwork = (function (model)
 	
 	end
 	
+	if OVERRIDE_ENABLED then
+		if model:FindFirstChild"Override" then
+			local override = new Classes.new 'Override'(model.Override, networkClass)
+		end
+	end
+	
 	return networkClass
 end)
 
+_G.AllNetworks = {}
 for _,v in next, networkModels do
 	_G[v.Name] = createNetwork(v)
+	table.insert(_G.AllNetworks, _G[v.Name])
 end

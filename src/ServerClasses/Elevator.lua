@@ -155,12 +155,13 @@ Classes.class 'Elevator' (function (this)
 		local welds = {}
 		Util.Welding.addSuperList(welds)
 		
-		-- Weld players
-		for _,v in next, players do
-			if v.Character and v.Character:FindFirstChild"Torso" then
-				Util.Welding.weld(v.Character.Torso, self.model.Unit.PrimaryPart, welds)
-			end
-		end
+		-- No need for this since roblox improved platform physics
+		-- Weld players to moveWith part
+		--for _,v in next, players do
+		--	if v.Character and v.Character:FindFirstChild"Torso" then
+		--		Util.Welding.weld(v.Character.Torso, moveWith, welds) -- self.model.Unit.PrimaryPart, welds)
+		--	end
+		--end
 		
 		-- Weld all elevator parts to reference part
 		for _,v in next, Util.findAll(self.model.Unit, "BasePart") do
@@ -169,12 +170,12 @@ Classes.class 'Elevator' (function (this)
 				v.Anchored = false
 			end
 		end
-		local moveWeld = Util.Welding.weld(self.model.Unit.PrimaryPart, self.model.Unit.RefferenceSite, welds, "Motor")
+		Util.Welding.weld(self.model.Unit.PrimaryPart, self.model.Unit.RefferenceSite, welds, "Motor")
 		self.model.Unit.PrimaryPart.Anchored = false
 		
 		-- Move reference part
 		local diff = data[2].Y - self.currentOuter[2].Y
-		local smooth = 6
+		local smooth = 12
 		
 		local change = Vector3.new(0, (diff > 0 and 1 or -1)/smooth, 0)
 		for i=1, math.abs(diff*smooth) do

@@ -31,7 +31,6 @@ Classes.class 'Door' (function (this)
 			Rbx::Model model
 			boolean isOpen
 			boolean isRunning
-			table clickers
 			DeviceMode mode
 			EventPropagator propagator
 	]]
@@ -41,7 +40,6 @@ Classes.class 'Door' (function (this)
 		self.model = model
 		self.isOpen = false
 		self.isRunning = false
-		self.clickers = {}
 		self.mode = LEnums.DeviceMode:GetItem"Normal"
 		self.controllerUsed = Classes.new 'Signal' ()
 		
@@ -54,7 +52,6 @@ Classes.class 'Door' (function (this)
 				if v.Name:find"Main" then
 					local CD = Instance.new("ClickDetector", v)
 					CD.MaxActivationDistance = 8
-					table.insert(self.clickers, CD)
 					
 					self.propagator:addObject(CD)
 				end
@@ -235,55 +232,57 @@ Classes.class 'Door' (function (this)
 		self.mode = mode
 		
 		local DeviceMode = LEnums.DeviceMode
-		local mains
-		local hasController = self.model:FindFirstChild"Control" and self.model.Control:FindFirstChild"Main1" 
-			and self.model.Control:FindFirstChild"Main2"and self.model.Control:FindFirstChild"Main3"
-		if hasController then
-			mains = {
-				self.model.Control.Main1;
-				self.model.Control.Main2;
-				self.model.Control.Main3;
-			}
-		end
+		local color
+		local hasController = self.model:FindFirstChild"Control"
+
 		if mode == DeviceMode:GetItem"Unpowered" then
-			if not hasController then return end
-			mains[1].BrickColor = BrickColor.Black()
-			mains[2].BrickColor = BrickColor.Black()
-			mains[3].BrickColor = BrickColor.Black()
-		elseif mode == DeviceMode:GetItem"Normal" then 
-			if hasController then 
-				mains[1].BrickColor = BrickColor.new("Medium blue")
-				mains[2].BrickColor = BrickColor.new("Medium blue")
-				mains[3].BrickColor = BrickColor.new("Medium blue")
-			else
+			color = {BrickColor.Black(), BrickColor.Black(), BrickColor.Black()}
+		elseif mode == DeviceMode:GetItem"Normal" then
+			if not hasController then 
 				self:changeStateAsync(false)
 			end
+			color = {BrickColor.new("Medium blue"), BrickColor.new("Medium blue"), BrickColor.new("Medium blue")}
 		elseif mode == DeviceMode:GetItem"LocalLock" then
 			if self.isOpen then
 				self:changeStateAsync(false)
 			end
-			
-			if not hasController then return end
-			mains[1].BrickColor = BrickColor.Red()
-			mains[2].BrickColor = BrickColor.Red()
-			mains[3].BrickColor = BrickColor.Red()
+			color = {BrickColor.Red(), BrickColor.Red(), BrickColor.Red()}
 		elseif mode == DeviceMode:GetItem"GeneralLock" then
 			if self.isOpen then
 				self:changeStateAsync(false)
 			end
-		
-			if not hasController then return end
-			mains[1].BrickColor = BrickColor.Black()
-			mains[2].BrickColor = BrickColor.Red()
-			mains[3].BrickColor = BrickColor.Red()
+			color = {BrickColor.Black(), BrickColor.Red(), BrickColor.Red()}
 		elseif mode == DeviceMode:GetItem"InterfaceDisabled" then
-			if not hasController then return end
-			mains[1].BrickColor = BrickColor.new("Medium blue")
-			mains[2].BrickColor = BrickColor.Black()
-			mains[3].BrickColor = BrickColor.Black()
+			color = {BrickColor.new("Medium blue"), BrickColor.Black(), BrickColor.Black()}
 		else
-			self.mode = DeviceMode:GetItem"Normal"
 			error("Unknown door mode: " .. tostring(mode))
+		end
+		
+		self:colorController(self.model:FindFirstChild"Control", color)
+		
+		if hasController then
+			for i,v in next, self.model.Control:GetChildren() do
+				if (v.ClassName == "Model") then
+					self:colorController(v, color)
+				end
+			end
+		end
+		
+	end
+	
+	function this.member:colorController(model, colors)
+		if model == nil then
+			return
+		end
+	
+		if model:FindFirstChild"Main1" then
+			model.Main1.BrickColor = colors[1]
+		end
+		if model:FindFirstChild"Main2" then
+			model.Main1.BrickColor = colors[2]
+		end
+		if model:FindFirstChild"Main3" then
+			model.Main1.BrickColor = colors[3]
 		end
 	end
 	

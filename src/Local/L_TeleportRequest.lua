@@ -24,7 +24,8 @@ event.OnClientEvent:connect(function (args)
 	local frame = Instance.new("Frame", gui)
 	frame.BackgroundTransparency = 1
 	frame.BackgroundColor3 = Color3.new(1,1,1)
-	frame.Size = UDim2.new(1.1,0,1.1,0)
+	frame.Position = UDim2.new(0,-50,0,-50)
+	frame.Size = UDim2.new(1,100,1,100)
 
 	for i=0, 90, 4.5 do
 		gui.Frame.BackgroundTransparency = math.cos(math.rad(i))

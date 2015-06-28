@@ -97,6 +97,35 @@ cs.class 'GeneralHandler' : extends "ConsoleHandler"  (function (this)
 			self.networkUpdate:Fire({tab = dat.tab; index = dat.index; newState = dat.newState})
 			return true
 		end
+		
+		if conType == LEnums.ConsoleType:GetItem"Control" then
+			return false
+		end
+		
+		if dat.tab == "Core" then
+			if dat.index == 1 then -- Reset
+				self.network:setMode(LEnums.SectionMode:GetItem"Normal")
+				if self.network:getTrain() ~= nil then
+					self.network:getTrain():setEnabled(true)
+				end
+				alarmFlag.Value = false
+				self.inRedAlert = false
+				return true
+			elseif dat.index == 2 then -- Train enable/disable
+				if self.network:getTrain() ~= nil then
+					local enabled = self.network:getTrain():isEnabled()
+					if (enabled and dat.newState) or (not enabled and not dat.newState) then
+						return true -- already in that state
+					end
+					self.network:getTrain():setEnabled(not enabled)
+				else
+					return false
+				end
+			end
+			self.networkUpdate:Fire({tab = dat.tab; index = dat.index; newState = dat.newState})
+			return true
+		end
+		
 	end
 	
 	function this.member:getBatchInfo(section, conType)
@@ -143,9 +172,13 @@ cs.class 'GeneralHandler' : extends "ConsoleHandler"  (function (this)
 		-- Core (Core+)
 		local core = {}
 		
-			-- Lockout
-			
-			-- Panic
+			-- Reset
+		table.insert(core, {CEnums.ScreenType.OnlineOffline, "Reset" , true, "Do Reset","Reset Complete"})
+		
+			-- Train disable
+		if self.network:getTrain() ~= nil then
+			table.insert(core, {CEnums.ScreenType.OnlineOffline, "Train", self.network:getTrain():isEnabled(), "Enabled", "Disabled"})
+		end
 		
 		toReturn["Core"] = core
 		

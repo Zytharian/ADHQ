@@ -94,12 +94,31 @@ cs.class 'Train' (function (this)
 		local welds = {}
 		Util.Welding.addSuperList(welds)
 		
-		-- Weld players to base
-		for _,v in next, self:getPlayersInside() do
+		-- Create temporary part
+		-- NOTE: This addresses an issue where first person camera will move
+		-- the welded part with the camera locally for some reason.
+		-- NOTE: May require FilteringEnabled for this to work properly. Untested.
+		local moveWith = Instance.new("Part")
+		moveWith.Name = "MoveWithTemporary"
+		moveWith.Transparency = 1
+		moveWith.CanCollide = false
+		moveWith.Anchored = true
+		moveWith.Parent = self.model
+		moveWith.CFrame = self.model.Ref.CFrame
+		
+		local moveWith2 = moveWith:Clone()
+		moveWith2.Parent = self.model
+		moveWith.CFrame = self.model.Ref.CFrame
+		
+		-- Weld players to moveWith part
+		local players = self:getPlayersInside()
+		for _,v in next, players do
 			if v.Character and v.Character:FindFirstChild"Torso" then
-				Util.Welding.weld(v.Character.Torso, self.trainBase, welds)
+				Util.Welding.weld(v.Character.Torso, moveWith2, welds)
 			end
 		end
+		Util.Welding.weld(moveWith2, moveWith, welds, "Motor")
+		moveWith2.Anchored = false
 		
 		-- Weld train to base
 		for _,v in next, self.partList do
@@ -108,7 +127,7 @@ cs.class 'Train' (function (this)
 				v.Anchored = false
 			end
 		end
-		local moveWeld = Util.Welding.weld(self.trainBase, self.model.Ref, welds, "Motor")
+		Util.Welding.weld(self.trainBase, self.model.Ref, welds, "Motor")
 		self.trainBase.Anchored = false
 		
 		self:guiSetStatus(nil) -- moving
@@ -121,8 +140,18 @@ cs.class 'Train' (function (this)
 		local steps = math.abs(diff*smooth) 
 		for i=1, steps do
 			self.model.Ref.CFrame = self.model.Ref.CFrame + change
-			self:guiSetPosition(point, i / steps)
+			moveWith.CFrame = self.model.Ref.CFrame
+			self:guiSetPosition(point, i / steps)			
 			wait()
+		end
+		
+		-- This is for the bug mentioned above. Camera forces players to end up
+		-- far away or in weird places.
+		local positions = {}
+		for i,v in next, players do
+			if v.Character and v.Character:FindFirstChild"Torso" then
+				positions[v.Character.Torso] = v.Character.Torso.CFrame
+			end
 		end
 		
 		-- Remove welds, anchor elevator
@@ -134,6 +163,13 @@ cs.class 'Train' (function (this)
 		for i,v in next, welds do
 			i:Destroy()
 		end
+		
+		for i,v in next, positions do
+			i.CFrame = v
+		end
+		
+		moveWith:Destroy()
+		moveWith2:Destroy()
 		
 		self.currentPoint = point
 		self.isMoving = false

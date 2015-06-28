@@ -62,7 +62,7 @@ UTIL.Welding._superList = {} -- { table = true }
 UTIL.Welding.weld = (function (P0, P1, list, CustomJointName)
 	local weld = Instance.new(CustomJointName or "Weld", game.JointsService)
 	weld.Part0, weld.Part1 = P0, P1
-	weld.C1 = C1 or weld.Part1.CFrame:toObjectSpace(weld.Part0.CFrame) 
+	weld.C1 = weld.Part1.CFrame:toObjectSpace(weld.Part0.CFrame) 
 	
 	if list then
 		list[weld] = true
