@@ -41,6 +41,7 @@ Classes.class 'Network' (function (this)
 		self.train = train
 		self.mode = LEnums.SectionMode:GetItem"Normal"
 		
+		self.lockoutEnabled = false
 		self.lockoutChanged = Classes.new 'Signal' ()
 	end
 	

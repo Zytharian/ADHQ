@@ -2,7 +2,7 @@ local privilegedUsers = {
 	"Atlantiscorp";
 	"Legend26";
 	"andy6a6";
-	"Yolopanher";
+	"Yolopanther";
 	"Ganondude";
 	"flames911";
 	"ArmyModder";
