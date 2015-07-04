@@ -9,6 +9,7 @@ local soundId = "http://www.roblox.com/asset/?id=167108295"
 
 local sound = Instance.new("Sound", player.Character:WaitForChild"Torso")
 sound.SoundId = soundId
+sound.Volume = 0.15 -- Keep within 0.1 and 0.25
 
 flag.Changed:connect(function ()
 	local enabled = flag.Value

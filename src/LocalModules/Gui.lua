@@ -289,7 +289,6 @@ GUI.createGuiModel = (function (view, player)
 	
 	local updateConnection
 	local networkUpdateHandler = (function (handler, networkId, dat)
-		print("Update from network id=" .. networkId .. ". Current network id=" .. currentNetId)
 		if currentNetId ~= networkId then
 			return
 		end
