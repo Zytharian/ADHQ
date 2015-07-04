@@ -5,6 +5,7 @@ local RS = game:GetService("ReplicatedStorage")
 -- Includes
 local cs = require(projectRoot.Modules.ClassSystem)
 local LEnums = require(projectRoot.Modules.Enums)
+local Util = require(projectRoot.Modules.Utilities)
 
 -- Configuration
 local DEBUG = false
@@ -30,8 +31,6 @@ local DEBUG = false
 -- Header end
 --------
 
-local ENABLED_FOR = {"Legend26", "Yolopanther", "andy6a6", "Atlantiscorp", "Ganondude", "ArmyModder", "flames911", "eumesmo92", "Player1"}
-
 cs.class 'Override' (function (this)
 
 	--[[
@@ -56,7 +55,7 @@ cs.class 'Override' (function (this)
 		self.propagator:addObject(CD)
 
 		self.propagator.eventFired:Connect(function (player, object)
-			if self:playerAlive(player) and self:playerImportant(player) then
+			if Util.playerAlive(player) and _G.Access.IsPrivilegedUser(player) then
 				self:resetNetwork()
 			end
 		end)
@@ -89,7 +88,8 @@ cs.class 'Override' (function (this)
 		end
 		self.debounce = true
 		
-		self.network:setMode(LEnums.SectionMode:GetItem"Normal")
+		self.network.lockoutEnabled = true
+		self.network:setMode(LEnums.SectionMode:GetItem"Unpowered")
 		if self.network:getTrain() ~= nil then
 			self.network:getTrain():setEnabled(true)
 		end
@@ -102,6 +102,8 @@ cs.class 'Override' (function (this)
 		end
 		
 		wait(5)
+		self.network:setMode(LEnums.SectionMode:GetItem"Normal")
+		
 		self.model.Button.BrickColor = BrickColor.Blue()
 		for i,v in next, self.model:GetChildren() do
 			if v.Name == "Glow" then
@@ -112,33 +114,13 @@ cs.class 'Override' (function (this)
 		self.debounce = false
 	end
 
-	function this.member:playerImportant(player)
-		for i,v in next, ENABLED_FOR do
-			if player.Name:lower() == v:lower() then
-				return true
-			end
-		end
-		
-		return false
-	end
-
-	function this.member:playerAlive(player)
-		if player.Character and player.Character:FindFirstChild"Humanoid"
-			and player.Character:FindFirstChild"Torso" and player.Character.Humanoid.Health > 0 then
-		
-			return true
-		else
-			return false
-		end
-	end
-	
 	function this.member:pollPlayerMovements()
 		while true do
 			wait(1)
 			
 			local playerNear = false
 			for i,v in next, game.Players:GetPlayers() do
-				if self:playerAlive(v) and self:playerImportant(v) then
+				if Util.playerAlive(v) and _G.Access.IsPrivilegedUser(v) then
 					if (v.Character.Torso.Position - self.model.Button.Position).magnitude < self.maxDistanceFromButton then
 						playerNear = true
 						break

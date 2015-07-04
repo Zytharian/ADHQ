@@ -74,11 +74,7 @@ cs.class 'SectionHandler' : extends "ConsoleHandler" (function (this)
 				return false
 			end
 			section:setLightingEnabled(dat.newState)
-		elseif dat.index == 3 then -- Power
-			if conType == LEnums.ConsoleType:GetItem"Local" then
-				return false-- Let's not turn off our own console's power
-			end
-		
+		elseif dat.index == 3 then -- Power		
 			if section:getMode() == LEnums.SectionMode:GetItem"Lockdown" then
 				self.networkUpdate:Fire({tab = dat.tab; index = 1; newState = true}) -- Update state
 			end

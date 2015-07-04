@@ -14,10 +14,10 @@ local DEBUG = false
 		string name
 		
 	Methods:
-		bool handleCommand(Section section, Enum::ConsoleType conType, table dat)
+		bool handleCommand(Section section, Enum::ConsoleType conType, table dat, Rbx::Player player)
 			True on command success, false otherwise.
 		
-		table getBatchInfo(Section section, Enum::ConsoleType conType)
+		table getBatchInfo(Section section, Enum::ConsoleType conType, Rbx::Player player)
 	Events:
 		networkUpdate(...)
 		
@@ -42,11 +42,11 @@ cs.class 'ConsoleHandler' : abstract() (function (this)
 		self.name = "N/A"
 	end
 	
-	function this.member:handleCommand(section, conType, dat)
+	function this.member:handleCommand(section, conType, dat, player)
 		error("Not implemented")
 	end
 	
-	function this.member:getBatchInfo(section, conType)
+	function this.member:getBatchInfo(section, conType, player)
 		error("Not	implemented")
 	end
 	

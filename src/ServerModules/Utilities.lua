@@ -55,6 +55,33 @@ UTIL.getPlayersInRegion3 = (function (region, ignore)
 	return list
 end)
 
+UTIL.playerAlive = (function (player)
+	local character = player.Character
+	if not character or not character:FindFirstChild"Humanoid" or character.Humanoid.Health == 0 
+	   or not character:FindFirstChild"Torso" or not character.Torso:IsA"BasePart" then
+		
+		return false
+	end
+	
+	return true
+end)
+
+UTIL.playerNearModel = (function (player, model, maxDistanceFromAnyPart)
+	if not player.Character or not player.Character:FindFirstChild"Torso" then
+		return false
+	end
+
+	local torsoPos = player.Character.Torso.Position
+	
+	for _,v in next, UTIL.findAll(model, "BasePart") do
+		if (torsoPos - v.Position).magnitude < maxDistanceFromAnyPart then
+			return true
+		end
+	end
+	
+	return false
+end)
+
 -- Welding util module
 UTIL.Welding = {}
 UTIL.Welding._superList = {} -- { table = true }

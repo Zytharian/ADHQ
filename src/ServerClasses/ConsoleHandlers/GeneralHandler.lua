@@ -17,10 +17,10 @@ local DEBUG = false
 		string name
 		
 	Methods:
-		bool handleCommand(Section section, Enum::ConsoleType conType, table dat)
+		bool handleCommand(Section section, Enum::ConsoleType conType, table dat, Rbx::Player player)
 			True on command success, false otherwise.
 		
-		table getBatchInfo(Section section, Enum::ConsoleType conType)
+		table getBatchInfo(Section section, Enum::ConsoleType conType, Rbx::Player player)
 	Events:
 		networkUpdate(...)
 		
@@ -51,7 +51,7 @@ cs.class 'GeneralHandler' : extends "ConsoleHandler"  (function (this)
 		self.redAlertImplRunning = false
 	end
 	
-	function this.member:handleCommand(section, conType, dat)
+	function this.member:handleCommand(section, conType, dat, player)
 		if conType == LEnums.ConsoleType:GetItem"Local" then
 			return false
 		end
@@ -111,16 +111,22 @@ cs.class 'GeneralHandler' : extends "ConsoleHandler"  (function (this)
 				alarmFlag.Value = false
 				self.inRedAlert = false
 				return true
-			elseif dat.index == 2 then -- Train enable/disable
-				if self.network:getTrain() ~= nil then
-					local enabled = self.network:getTrain():isEnabled()
-					if (enabled and dat.newState) or (not enabled and not dat.newState) then
-						return true -- already in that state
-					end
-					self.network:getTrain():setEnabled(not enabled)
-				else
+			elseif dat.index == 2 and self.network:getTrain() then -- Train enable/disable
+				local enabled = self.network:getTrain():isEnabled()
+				if (enabled and dat.newState) or (not enabled and not dat.newState) then
+					return true -- already in that state
+				end
+				self.network:getTrain():setEnabled(not enabled)
+			elseif (not self.network:getTrain() and dat.index == 3) or (self.network:getTrain() and dat.index == 4) then -- 
+				if not _G.Access.IsPrivilegedUser(player) then
 					return false
 				end
+				
+				self.network.lockoutEnabled = dat.newState
+				
+				return true
+			else
+				return false
 			end
 			self.networkUpdate:Fire({tab = dat.tab; index = dat.index; newState = dat.newState})
 			return true
@@ -128,7 +134,7 @@ cs.class 'GeneralHandler' : extends "ConsoleHandler"  (function (this)
 		
 	end
 	
-	function this.member:getBatchInfo(section, conType)
+	function this.member:getBatchInfo(section, conType, player)
 		local toReturn = {}
 		
 		-- Base monitor
@@ -176,8 +182,13 @@ cs.class 'GeneralHandler' : extends "ConsoleHandler"  (function (this)
 		table.insert(core, {CEnums.ScreenType.OnlineOffline, "Reset" , true, "Do Reset","Reset Complete"})
 		
 			-- Train disable
-		if self.network:getTrain() ~= nil then
+		if self.network:getTrain() then
 			table.insert(core, {CEnums.ScreenType.OnlineOffline, "Train", self.network:getTrain():isEnabled(), "Enabled", "Disabled"})
+		end
+		
+		if _G.Access.IsPrivilegedUser(player) then
+			table.insert(core, {CEnums.ScreenType.Section, "Privileged"})
+			table.insert(core, {CEnums.ScreenType.OnlineOffline, "Lockout", self.network.lockoutEnabled, "Enabled", "Disabled"})
 		end
 		
 		toReturn["Core"] = core

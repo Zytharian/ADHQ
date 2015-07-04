@@ -79,14 +79,18 @@ createNetwork = (function (model)
 	end
 	
 	local networkClass = Classes.new 'Network' (model.Name, sectionList, transporterList, train)
+	
 	if CONSOLES_ENABLED then
 		local consoleManager = Classes.new 'ConsoleManager' (networkClass)
-	
+		
+		dPrint("-> Created console manaager", DEBUG)
 	end
 	
 	if OVERRIDE_ENABLED then
 		if model:FindFirstChild"Override" then
 			local override = new Classes.new 'Override'(model.Override, networkClass)
+			
+			dPrint("-> Created override", DEBUG)
 		end
 	end
 	

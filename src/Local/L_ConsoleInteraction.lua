@@ -6,9 +6,7 @@ local GuiLib = require(Replicated.Gui)
 
 -- Configuration
 local DEBUG = false
-local INTERACT_DISTANCE_LIMIT = 8 
-
-local ENABLED_FOR = {"Legend26", "Yolopanther", "andy6a6", "Atlantiscorp", "Ganondude", "ArmyModder", "flames911", "eumesmo92", "Player1"}
+local INTERACT_DISTANCE_LIMIT = 6
 
 --------
 -- Header end
@@ -17,23 +15,6 @@ local ENABLED_FOR = {"Legend26", "Yolopanther", "andy6a6", "Atlantiscorp", "Gano
 local netModel = workspace:WaitForChild("1_HQ_Network")
 local player = game.Players.LocalPlayer
 local mouse = player:GetMouse()
-
--- Check player has access
-if ENABLED_FOR then
-	local pass = false
-	
-	for _,v in next, ENABLED_FOR do
-		if v:lower() == player.Name:lower() then
-			pass = true
-			break
-		end
-	end
-
-	if not pass then 
-		return
-	end
-end
-
 
 local consoles = {}
 local gui = GuiLib.createGui(player)

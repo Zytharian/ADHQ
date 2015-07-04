@@ -11,17 +11,17 @@ local LEnums = require(projectRoot.Modules.Enums)
 
 	Properties:
 		readonly string name
+		bool lockout
 
 	Methods:
 		table getSections()
 		Section getSection(string name)
 		table getTransporters()
 		Train getTrain()
-		PowerSystem getPowerSysten()
 		LEnums::SectionMode getMode()
 		void setMode(LEnums::SectionMode mode)
 	Events:
-
+		lockoutChanged(bool lockoutEnabled)
 ]]
 
 Classes.class 'Network' (function (this) 
@@ -31,17 +31,17 @@ Classes.class 'Network' (function (this)
 			table sections
 			table transporters
 			Train train
-			PowerSystem powerSystem
 			LEnums::SectionMode mode
 	]]
 
-	function this:init (name, sectionList, transporterList, train, powerSystem)
+	function this:init (name, sectionList, transporterList, train)
 		self.name = name
 		self.sections = Util.shallowCopyTable(sectionList)
 		self.transporters =  Util.shallowCopyTable(transporterList)
 		self.train = train
-		self.powerSystem = powerSystem
 		self.mode = LEnums.SectionMode:GetItem"Normal"
+		
+		self.lockoutChanged = Classes.new 'Signal' ()
 	end
 	
 	-- Getters
@@ -65,10 +65,6 @@ Classes.class 'Network' (function (this)
 		return self.train
 	end
 	
-	function this.member:getPowerSysten()
-		return self.PowerSystem
-	end
-	
 	function this.member:getMode()
 		return self.mode
 	end
@@ -76,9 +72,7 @@ Classes.class 'Network' (function (this)
 	function this.member:setMode(mode)
 		local sMode = LEnums.SectionMode
 		
-		if self.mode == mode then
-			return
-		elseif mode == sMode:GetItem"Unpowered" then
+		if mode == sMode:GetItem"Unpowered" then
 			for _,v in next, self:getSections() do
 				v:setMode(LEnums.SectionMode:GetItem"Unpowered")
 			end
@@ -108,15 +102,27 @@ Classes.class 'Network' (function (this)
 	
 	-- public properties
 	this.get.name = true
+	this.get.lockoutEnabled = true
 	
+	function this.set:lockoutEnabled (index, value)
+		if self.lockoutEnabled == value then
+			return
+		end
+		
+		self.lockoutEnabled = value
+		self.lockoutChanged:Fire(value)
+	end
+
 	-- public methods
 	this.get.getSections = true
 	this.get.getSection = true
 	this.get.getTransporters = true
 	this.get.getTrain = true
-	this.get.getPowerSysten = true
 	this.get.setMode = true
 	this.get.getMode = true
+	
+	-- public events
+	this.get.lockoutChanged = true
 end)
 
 return false

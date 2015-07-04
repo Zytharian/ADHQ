@@ -122,11 +122,11 @@ local GiveGui = (function (Plyr)
 		Title.Size = UDim2.new(1,0,1,0)
 		Title.TextColor3 = Color3.new(1,1,1)
 		Title.BackgroundTransparency = 1
-	local Img = Instance.new("ImageLabel",Gui)
-		Img.Image = "http://www.roblox.com/asset/?id=46776566"
-		Img.Size = UDim2.new(0,40,0,40)
-		Img.Position = UDim2.new(1,-100,1,-50)
-		Img.BackgroundTransparency = 1
+	--local Img = Instance.new("ImageLabel",Gui)
+	--	Img.Image = "http://www.roblox.com/asset/?id=46776566"
+	--	Img.Size = UDim2.new(0,40,0,40)
+	--	Img.Position = UDim2.new(1,-100,1,-50)
+	--	Img.BackgroundTransparency = 1
 
 	Gui.Frame.Visible = IsPRI
 	Gui.Parent = Plyr:findFirstChild"PlayerGui"
@@ -288,10 +288,10 @@ Commands[3].teleport = {(function (Plyr, Msg)
 			v.PlatformStand = false
 		end
 	end
-	p1.Character.Torso.Anchored = true
-	wait(0.25)
+	--p1.Character.Torso.Anchored = true
+	--wait(0.25)
 	p1.Character.Torso.CFrame = p2.Character.Torso.CFrame
-	p1.Character.Torso.Anchored = false
+	--p1.Character.Torso.Anchored = false
 end), "<From> <To>"}
 
 Commands[3].adonly = (function (Plyr)

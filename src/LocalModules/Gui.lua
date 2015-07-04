@@ -4,9 +4,6 @@ local replicated = game:GetService("ReplicatedStorage")
 -- Includes
 local CEnums = require(replicated.CommandEnums)
 
--- Configuration
-local DEBUG = true
-
 -- Exported object
 local GUI = {}
 
@@ -292,6 +289,7 @@ GUI.createGuiModel = (function (view, player)
 	
 	local updateConnection
 	local networkUpdateHandler = (function (handler, networkId, dat)
+		print("Update from network id=" .. networkId .. ". Current network id=" .. currentNetId)
 		if currentNetId ~= networkId then
 			return
 		end
@@ -316,10 +314,14 @@ GUI.createGuiModel = (function (view, player)
 			error("No CON_F_GetBatchInformation")
 		end
 		
-		local data, consoleType, networkId = remote:InvokeServer(id)
+		local data, consoleType, networkId, status = remote:InvokeServer(id)
 		
 		if not data or not consoleType or not networkId then
-			view.setStatus("ERROR: NO POWER")
+			if status then
+				view.setStatus("ERROR: " .. status)
+			else
+				view.setStatus("ERROR: NO STATUS KNOWN")
+			end
 			view.openScreen()
 			return
 		end
