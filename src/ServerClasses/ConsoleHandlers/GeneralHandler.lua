@@ -61,9 +61,14 @@ cs.class 'GeneralHandler' : extends "ConsoleHandler"  (function (this)
 				if dat.newState then -- normal
 					self.network:setMode(LEnums.SectionMode:GetItem"Normal")
 					alarmFlag.Value = false
+					self.inRedAlert = false
 				else -- lockdown
 					self.network:setMode(LEnums.SectionMode:GetItem"Lockdown")
 					alarmFlag.Value = true
+					if not self.redAlertImplRunning then
+						self.inRedAlert = true
+						self:executeRedAlert()
+					end
 				end
 				self.networkUpdate:Fire({tab = dat.tab; index = 3; newState = dat.newState}) -- update alarm
 			elseif dat.index == 2 then -- Alert

@@ -45,15 +45,27 @@ cs.class 'TransporterHandler' : extends "ConsoleHandler"  (function (this)
 	end
 	
 	function this.member:handleCommand(section, conType, dat)
-		if conType == LEnums.ConsoleType:GetItem"Local" or self.network:getMode() ~= LEnums.SectionMode:GetItem"Normal" then
+		if conType == LEnums.ConsoleType:GetItem"Local" then
 			return false
 		end
 		
-		self.network:getTransporters()[dat.index / 2]:setMode(dat.newState and LEnums.DeviceMode:GetItem"Normal" 
-			or LEnums.DeviceMode:GetItem"LocalLock")
-			
-		self.networkUpdate:Fire({tab = dat.tab; index = dat.index; newState = dat.newState}) 
-		
+		if dat.tab == "Transporters" then
+			local trans = self.network:getTransporters()[dat.index / 2]
+			if not trans then
+				return false
+			end
+			trans:setMode(dat.newState and LEnums.DeviceMode:GetItem"Normal" or LEnums.DeviceMode:GetItem"LocalLock")
+		elseif dat.tab == "Rings" then
+			local rings = self.network:getRings()[dat.index / 2]
+			if not rings then
+				return false
+			end
+			rings.isEnabled = dat.newState
+		else
+			return false
+		end
+
+		self.networkUpdate:Fire({tab = dat.tab; index = dat.index; newState = dat.newState}) 		
 		return true
 	end
 	
@@ -62,17 +74,22 @@ cs.class 'TransporterHandler' : extends "ConsoleHandler"  (function (this)
 			return nil
 		end
 		
-		local toReturn = {}
+		local transporters = {}
 		
 		for i,v in next, self.network:getTransporters() do
 			local currentState = v:getMode() ~= LEnums.DeviceMode:GetItem"LocalLock"
 		
-			table.insert(toReturn, {CEnums.ScreenType.Section, v.name})
-			table.insert(toReturn, {CEnums.ScreenType.OnlineOffline, "Status", currentState, "Unlocked", "Locked"})
+			table.insert(transporters, {CEnums.ScreenType.Section, v.name})
+			table.insert(transporters, {CEnums.ScreenType.OnlineOffline, "Status", currentState, "Unlocked", "Locked"})
 		end
 		
+		local rings = {}
+		for i,v in next, self.network:getRings() do
+			table.insert(rings, {CEnums.ScreenType.Section, v.name})
+			table.insert(rings, {CEnums.ScreenType.OnlineOffline, "Status", v.isEnabled, "Enabled", "Disabled"})
+		end
 		
-		return {Transporters = toReturn}
+		return {Transporters = transporters, Rings = rings}
 	end
 	
 	this.get.name = true

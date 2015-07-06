@@ -13,6 +13,7 @@ local TRANSPORTERS_ENABLED = true
 local CONSOLES_ENABLED = true
 local TRAIN_ENABLED = true
 local OVERRIDE_ENABLED = true
+local RING_INTERFACE_ENABLED = true
 
 --------
 -- Header end
@@ -32,6 +33,7 @@ createNetwork = (function (model)
 	
 	local sectionList = {}
 	local transporterList = {}
+	local ringsList = {}
 	
 	dPrint("-> Creating sections", DEBUG)
 	for _,section in next,  model.Sections:GetChildren() do
@@ -78,7 +80,16 @@ createNetwork = (function (model)
 		end
 	end
 	
-	local networkClass = Classes.new 'Network' (model.Name, sectionList, transporterList, train)
+	if RING_INTERFACE_ENABLED then
+		dPrint("-> Creating rings", DEBUG)
+		
+		for _,rings in next, model.Rings:GetChildren() do
+			local ringsClass = Classes.new 'Rings' (rings)
+			table.insert(ringsList, ringsClass)
+		end
+	end
+	
+	local networkClass = Classes.new 'Network' (model, sectionList, transporterList, train, ringsList)
 	
 	if CONSOLES_ENABLED then
 		local consoleManager = Classes.new 'ConsoleManager' (networkClass)

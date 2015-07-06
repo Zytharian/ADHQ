@@ -7,7 +7,7 @@ local Util = require(projectRoot.Modules.Utilities)
 local LEnums = require(projectRoot.Modules.Enums)
 
 --[[
-	init(string name, table sectionList, table transporterList)
+	init(string name, table sectionList, table transporterList, Train train, table rings)
 
 	Properties:
 		readonly string name
@@ -17,6 +17,7 @@ local LEnums = require(projectRoot.Modules.Enums)
 		table getSections()
 		Section getSection(string name)
 		table getTransporters()
+		table getRings()
 		Train getTrain()
 		LEnums::SectionMode getMode()
 		void setMode(LEnums::SectionMode mode)
@@ -28,17 +29,21 @@ Classes.class 'Network' (function (this)
 
 	--[[
 		Internal properties:
+			Rbx::Model model
 			table sections
 			table transporters
+			table rings
 			Train train
 			LEnums::SectionMode mode
+			string ringAddress
 	]]
 
-	function this:init (name, sectionList, transporterList, train)
+	function this:init (name, sectionList, transporterList, train, rings)
 		self.name = name
 		self.sections = Util.shallowCopyTable(sectionList)
 		self.transporters =  Util.shallowCopyTable(transporterList)
 		self.train = train
+		self.rings = rings
 		self.mode = LEnums.SectionMode:GetItem"Normal"
 		
 		self.lockoutEnabled = false
@@ -52,6 +57,10 @@ Classes.class 'Network' (function (this)
 	
 	function this.member:getSections() 
 		return Util.shallowCopyTable(self.sections)
+	end
+	
+	function this.member:getRings()
+		return Util.shallowCopyTable(self.rings)
 	end
 	
 	function this.member:getSection(name)
@@ -80,6 +89,9 @@ Classes.class 'Network' (function (this)
 			for _,v in next, self:getTransporters() do
 				v:setMode(LEnums.DeviceMode:GetItem"Unpowered")
 			end
+			for _,v in next, self:getRings() do
+				v.isEnabled = false
+			end
 		elseif mode == sMode:GetItem"Normal" then
 			for _,v in next, self:getSections() do
 				v:setMode(LEnums.SectionMode:GetItem"Normal")
@@ -87,12 +99,18 @@ Classes.class 'Network' (function (this)
 			for _,v in next, self:getTransporters() do
 				v:setMode(LEnums.DeviceMode:GetItem"Normal")
 			end
+			for _,v in next, self:getRings() do
+				v.isEnabled = true
+			end
 		elseif mode == sMode:GetItem"Lockdown" then
 			for _,v in next, self:getSections() do
 				v:setMode(LEnums.SectionMode:GetItem"Lockdown")
 			end
 			for _,v in next, self:getTransporters() do
 				v:setMode(LEnums.DeviceMode:GetItem"GeneralLock")
+			end
+			for _,v in next, self:getRings() do
+				v.isEnabled = false
 			end
 		else
 			error("Bad mode " .. tostring(mode))
@@ -116,6 +134,7 @@ Classes.class 'Network' (function (this)
 
 	-- public methods
 	this.get.getSections = true
+	this.get.getRings = true
 	this.get.getSection = true
 	this.get.getTransporters = true
 	this.get.getTrain = true

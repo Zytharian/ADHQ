@@ -279,10 +279,10 @@ Classes.class 'Door' (function (this)
 			model.Main1.BrickColor = colors[1]
 		end
 		if model:FindFirstChild"Main2" then
-			model.Main1.BrickColor = colors[2]
+			model.Main2.BrickColor = colors[2]
 		end
 		if model:FindFirstChild"Main3" then
-			model.Main1.BrickColor = colors[3]
+			model.Main3.BrickColor = colors[3]
 		end
 	end
 	

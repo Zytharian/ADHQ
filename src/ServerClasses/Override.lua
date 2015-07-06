@@ -90,9 +90,6 @@ cs.class 'Override' (function (this)
 		
 		self.network.lockoutEnabled = true
 		self.network:setMode(LEnums.SectionMode:GetItem"Unpowered")
-		if self.network:getTrain() ~= nil then
-			self.network:getTrain():setEnabled(true)
-		end
 		
 		self.model.Button.BrickColor = BrickColor.Red()
 		for i,v in next, self.model:GetChildren() do
@@ -103,6 +100,9 @@ cs.class 'Override' (function (this)
 		
 		wait(5)
 		self.network:setMode(LEnums.SectionMode:GetItem"Normal")
+		if self.network:getTrain() ~= nil then
+			self.network:getTrain():setEnabled(true)
+		end
 		
 		self.model.Button.BrickColor = BrickColor.Blue()
 		for i,v in next, self.model:GetChildren() do
