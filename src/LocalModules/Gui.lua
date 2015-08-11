@@ -201,9 +201,12 @@ GUI.createGuiView = (function (player)
 				return 
 			end
 			
-			currentState = newState
-			template.TextButton.Text = currentState and onState or offState
-			template.TextButton.TextColor3 = currentState and green or red
+			-- Changing something may close the screen (ex. unpowering current console)
+			if gui.Screen.Visible then
+				currentState = newState
+				template.TextButton.Text = currentState and onState or offState
+				template.TextButton.TextColor3 = currentState and green or red
+			end
 		end)
 		
 		local changeState = (function (newState)
@@ -270,6 +273,7 @@ GUI.createGuiModel = (function (view, player)
 	
 	local interacting = false
 	local currentNetId = 0
+	local currentConsoleId = 0
 	
 	local constructScreen = (function (outId, innerId, pageDat, consoleId, handler, innerName)
 		for i,v in next, pageDat do
@@ -293,8 +297,28 @@ GUI.createGuiModel = (function (view, player)
 			return
 		end
 		
-		local outId = view.getOuterIdByName(handler)
-		view.changeState(outId, view.getInnerIdByName(outId, dat.tab), dat.index, dat.newState)
+		if handler then
+			local outId = view.getOuterIdByName(handler)
+			view.changeState(outId, view.getInnerIdByName(outId, dat.tab), dat.index, dat.newState)
+		else 
+			-- lockout; dat = nil
+			if not dat then
+				local consoleId = currentConsoleId
+				this.stopInteract()
+				this.interact(consoleId)
+				return
+			end
+		
+			-- unpowered; dat = table of console ids that have been disabled in this case
+			for _,id in next, dat do
+				if id == currentConsoleId then
+					local consoleId = currentConsoleId
+					this.stopInteract()
+					this.interact(consoleId)
+					return
+				end
+			end
+		end
 	end)
 	
 	this.isInteracting = (function ()
@@ -306,6 +330,7 @@ GUI.createGuiModel = (function (view, player)
 			error("Already interacting")
 		end
 		interacting = true
+		currentConsoleId = id
 	
 		-- Get batch info
 		local remote = replicated:FindFirstChild"CON_F_GetBatchInformation"
@@ -340,7 +365,7 @@ GUI.createGuiModel = (function (view, player)
 		
 		updateConnection = replicated.CON_E_NetworkUpdate.OnClientEvent:connect(networkUpdateHandler)
 		
-		view.setStatus("ConsoleType: " .. consoleType .. "; NetId: " .. currentNetId)
+		view.setStatus("ConsoleType: " .. consoleType .. "; NetId: " .. currentNetId .. "; ConsoleId: " .. currentConsoleId)
 		
 		if view.isScreenOpen() then
 			print("WARNING: Screen already open.")

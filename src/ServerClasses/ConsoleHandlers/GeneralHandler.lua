@@ -41,14 +41,12 @@ cs.class 'GeneralHandler' : extends "ConsoleHandler"  (function (this)
 	--[[
 		Internal properties:
 			bool inRedAlert
-			bool redAlertImplRunning
 			
 	]]
 
 	function this:init ()
 		self.name = "General"
 		self.inRedAlert = false
-		self.redAlertImplRunning = false
 	end
 	
 	function this.member:handleCommand(section, conType, dat, player)
@@ -61,35 +59,16 @@ cs.class 'GeneralHandler' : extends "ConsoleHandler"  (function (this)
 				if dat.newState then -- normal
 					self.network:setMode(LEnums.SectionMode:GetItem"Normal")
 					alarmFlag.Value = false
-					self.inRedAlert = false
+					self:setRedAlert(false)
 				else -- lockdown
 					self.network:setMode(LEnums.SectionMode:GetItem"Lockdown")
 					alarmFlag.Value = true
-					if not self.redAlertImplRunning then
-						self.inRedAlert = true
-						self:executeRedAlert()
-					end
+					self:setRedAlert(true)
 				end
 				self.networkUpdate:Fire({tab = dat.tab; index = 3; newState = dat.newState}) -- update alarm
 			elseif dat.index == 2 then -- Alert
-				if self.network:getMode() == LEnums.SectionMode:GetItem"Unpowered" then
-					return false -- no power to do anything
-				end
-				
-				if not dat.newState then -- Red alert
-					if self.redAlertImplRunning then
-						return true -- already in red alert
-					end
-					self.inRedAlert = true
-					self:executeRedAlert()
-				else -- Normal 
-					self.inRedAlert = false
-				end
+				self:setRedAlert(not dat.newState)
 			elseif dat.index == 3 then
-				if self.network:getMode() == LEnums.SectionMode:GetItem"Unpowered" then
-					return false -- no power to do anything
-				end
-				
 				if dat.newState then
 					alarmFlag.Value = false
 				else
@@ -114,7 +93,7 @@ cs.class 'GeneralHandler' : extends "ConsoleHandler"  (function (this)
 					self.network:getTrain():setEnabled(true)
 				end
 				alarmFlag.Value = false
-				self.inRedAlert = false
+				self:setRedAlert(false)
 				return true
 			elseif dat.index == 2 and self.network:getTrain() then -- Train enable/disable
 				local enabled = self.network:getTrain():isEnabled()
@@ -202,50 +181,16 @@ cs.class 'GeneralHandler' : extends "ConsoleHandler"  (function (this)
 		return toReturn		
 	end
 	
-	function this.member:executeRedAlert()
-		if self.redAlertImplRunning then
-			error("Red alert already running")
+	function this.member:setRedAlert(enabled) 
+		if self.inRedAlert == enabled then return end
+		
+		local RED = Color3.new(1, 0, 0)
+		local NORMAL = Color3.new(1, 248/255, 220/255)
+		
+		local sections = self.network:getSections()
+		for _,v in next, sections do
+			v:setLightingColor(RED)
 		end
-		self.redAlertImplRunning = true
-		
-		coroutine.wrap(function ()
-			local RED = Color3.new(1, 0, 0)
-			local NORMAL = Color3.new(1, 248/255, 220/255)
-		
-			local sections = self.network:getSections()
-			for _,v in next, sections do
-				v:setLightingColor(RED)
-			end
-		
-			while self.inRedAlert do
-				for _,v in next, sections do
-					if v:getMode() ~= LEnums.SectionMode:GetItem"Unpowered" then
-						v:setLightingEnabled(false)
-					end
-				end
-				wait(2)
-				if not self.inRedAlert then
-					break
-				end
-				for _,v in next, sections do
-					if v:getMode() ~= LEnums.SectionMode:GetItem"Unpowered" then
-						v:setLightingEnabled(true)
-					end
-				end
-				wait(2)
-			end
-			
-			for _,v in next, sections do
-				if v:getMode() ~= LEnums.SectionMode:GetItem"Unpowered" then
-					v:setLightingEnabled(true)
-				end
-				
-				v:setLightingColor(NORMAL)
-			end
-			
-			self.redAlertImplRunning = false
-		end)()
-		
 	end
 	
 	this.get.name = true

@@ -11,8 +11,8 @@ local Util = require(projectRoot.Modules.Utilities)
 
 	Properties:
 		readonly string name
-		readonly bool ligtsEnabled
-	
+		readonly bool lightsEnabled
+
 	Methods:
 		table getDoors()
 		Door getDoor(string name)
@@ -20,40 +20,39 @@ local Util = require(projectRoot.Modules.Utilities)
 		void setLightingEnabled(bool enabled)
 		void setMode(LEnums::SectionMode mode)
 		LEnums::SectionMode getMode()
-		
+
 	Events:
+		modeChanged(LEnums::SectionMode)
 
 ]]
 
-Classes.class 'Section' (function (this) 
+Classes.class 'Section' (function (this)
 
 	--[[
 		Internal properties:
 			table doors
 			table lights
+			table consoles
 			LEnums::SectionMode
 	]]
 
-	function this:init (name, doors, lights, consoleModels)
+	function this:init (name, doors, lights, consoles)
 		self.name = name
 		self.doors = doors
 		self.lights = lights
-		self.ligtsEnabled = true
-		
-		if not consoleModels then
-			self.consoleModels = {}
-		else
-			self.consoleModels = consoleModels
-		end
-		
+		self.lightsEnabled = true
+
+		self.consoles = consoles
+
 		self.mode = LEnums.SectionMode:GetItem"Normal"
+		self.modeChanged = Classes.new 'Signal' ()
 	end
-	
+
 	-- Getters
-	function this.member:getDoors() 
+	function this.member:getDoors()
 		return Util.shallowCopyTable(self.doors)
 	end
-	
+
 	function this.member:getDoor(name)
 		for _,v in next, self.doors do
 			if v.name == name then
@@ -61,55 +60,81 @@ Classes.class 'Section' (function (this)
 			end
 		end
 	end
-	
+
 	function this.member:getConsoleModels()
-		return Util.shallowCopyTable(self.consoleModels)
+		return Util.shallowCopyTable(self.consoles)
 	end
-	
+
 	function this.member:setLightingColor(color)
 		for _,v in next, self.lights do
 			v.Color = color
 		end
 	end
-	
+
 	function this.member:setLightingEnabled(enabled)
 		for _,v in next, self.lights do
 			v.Enabled = enabled
 		end
-		self.ligtsEnabled = enabled
+		self.lightsEnabled = enabled
 	end
-	
+
 	function this.member:setMode(sectionMode)
 		if sectionMode == LEnums.SectionMode:GetItem"Unpowered" then
 			self:setLightingEnabled(false)
 			for _,v in next, self.doors do
 				v:setMode(LEnums.DeviceMode:GetItem"Unpowered")
 			end
+			self:setConsoleLights(false)
 		elseif sectionMode == LEnums.SectionMode:GetItem"Normal" then
 			self:setLightingEnabled(true)
 			for _,v in next, self.doors do
 				v:setMode(LEnums.DeviceMode:GetItem"Normal")
 			end
+			self:setConsoleLights(true)
 		elseif sectionMode == LEnums.SectionMode:GetItem"Lockdown" then
 			self:setLightingEnabled(true)
 			for _,v in next, self.doors do
 				v:setMode(LEnums.DeviceMode:GetItem"GeneralLock")
 			end
+			self:setConsoleLights(true)
 		else
 			error("Bad section mode")
 		end
-		
+
 		self.mode = sectionMode
+		self.modeChanged:Fire(self.mode)
 	end
-	
+
+	function this.member:setConsoleLights(enabled)
+		for i,v in next, self.consoles do
+			local unit = v:FindFirstChild"Unit"
+
+			local controls = unit and unit:FindFirstChild"Controls" or nil
+			local buttons = controls and controls:FindFirstChild"Buttons" or nil
+
+			local neon = unit and unit:FindFirstChild"Neon" or nil
+			
+			if buttons then
+				for _,part in next, buttons:GetChildren() do
+					part.Material = enabled and Enum.Material.Neon or Enum.Material.SmoothPlastic
+				end
+			end
+			if neon then
+				for _,part in next, neon:GetChildren() do
+					part.Material = enabled and Enum.Material.Neon or Enum.Material.SmoothPlastic
+				end
+			end
+		end
+	end
+
 	function this.member:getMode()
 		return self.mode
 	end
-	
+
 	-- public properties
 	this.get.name = true
 	this.get.lightsEnabled = true
-	
+
 	-- public methods
 	this.get.getDoors = true
 	this.get.getDoor = true
@@ -118,6 +143,7 @@ Classes.class 'Section' (function (this)
 	this.get.setLightingEnabled = true
 	this.get.setMode = true
 	this.get.getMode = true
+	this.get.modeChanged = true
 end)
 
 return false

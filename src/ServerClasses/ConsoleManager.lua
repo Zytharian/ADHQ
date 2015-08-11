@@ -11,7 +11,7 @@ local CEnums = require(RS.CommandEnums)
 -- Configuration
 local DEBUG = true
 local CORE_ACCESS_SECTIONS = {Core = true}
-local CONTROL_ACCESS_SECTIONS = {ControlRoom = true, ["Admin Building"] = true}
+local CONTROL_ACCESS_SECTIONS = {["Control Room"] = true, ["Admin Building"] = true}
 local INTERACT_DISTANCE_LIMIT = 7
 
 --[[
@@ -85,6 +85,17 @@ Classes.class 'ConsoleManager' (function (this)
 
 		self:remoteHooks()
 		self:updates()
+
+		self.network.lockoutChanged:Connect(function (lockoutEnabled)
+			if not lockoutEnabled then return end
+
+			-- Notify players of lockout
+			for _,player in next, game.Players:GetPlayers() do
+				if not _G.Access.IsPrivilegedUser(player) then
+					RS.CON_E_NetworkUpdate:FireAllClients(nil, self.networkId, nil)
+				end
+			end
+		end)
 	end
 
 	function this.member:remoteHooks()
@@ -106,12 +117,12 @@ Classes.class 'ConsoleManager' (function (this)
 			if not Util.playerAlive(player) or not Util.playerNearModel(player, console.model, INTERACT_DISTANCE_LIMIT) then
 				return
 			end
-			
+
 			if console.section:getMode() == LEnums.SectionMode:GetItem"Unpowered" then
 				return nil, nil, nil, "NO POWER"
 			elseif self.network.lockoutEnabled and not _G.Access.IsPrivilegedUser(player) then
 				return nil, nil, nil, "CONSOLE LOCKOUT"
-			end 
+			end
 
 			local dat = {}
 			local conType
@@ -150,7 +161,7 @@ Classes.class 'ConsoleManager' (function (this)
 			if not Util.playerAlive(player) or not Util.playerNearModel(player, console.model, INTERACT_DISTANCE_LIMIT) then
 				return
 			end
-			
+
 			if console.section:getMode() == LEnums.SectionMode:GetItem"Unpowered" then
 				return
 			elseif self.network.lockoutEnabled and not _G.Access.IsPrivilegedUser(player) then
@@ -194,6 +205,7 @@ Classes.class 'ConsoleManager' (function (this)
 				access = LEnums.ConsoleType:GetItem"Local"
 			end
 
+			local sectionConsoleIds = {}
 			for _,m in next, s:getConsoleModels() do
 				numConsoles = numConsoles + 1
 				self.consoles[numConsoles] = {
@@ -205,7 +217,15 @@ Classes.class 'ConsoleManager' (function (this)
 				local val = Instance.new("IntValue", m)
 				val.Name = "CON_Console"
 				val.Value = numConsoles
+
+				table.insert(sectionConsoleIds, numConsoles)
 			end
+
+			s.modeChanged:Connect(function (newMode)
+				if newMode == LEnums.SectionMode:GetItem"Unpowered" then
+					RS.CON_E_NetworkUpdate:FireAllClients(nil, self.networkId, sectionConsoleIds)
+				end
+			end)
 		end
 	end
 

@@ -80,7 +80,7 @@ createNetwork = (function (model)
 		end
 	end
 	
-	if RING_INTERFACE_ENABLED then
+	if RING_INTERFACE_ENABLED and model:FindFirstChild"Rings" then
 		dPrint("-> Creating rings", DEBUG)
 		
 		for _,rings in next, model.Rings:GetChildren() do

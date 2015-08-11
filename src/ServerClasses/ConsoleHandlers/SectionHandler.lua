@@ -44,11 +44,7 @@ cs.class 'SectionHandler' : extends "ConsoleHandler" (function (this)
 		self.name = "Sections"
 	end
 	
-	function this.member:handleCommand(section, conType, dat)
-		--if self.network:getMode() ~= LEnums.SectionMode:GetItem"Normal" then
-		--	return
-		--end
-	
+	function this.member:handleCommand(section, conType, dat)	
 		if conType ~= LEnums.ConsoleType:GetItem"Local" then
 			for _,v in next, self.network:getSections() do
 				if v.name == dat.tab then
