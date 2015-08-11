@@ -94,7 +94,7 @@ Classes.class 'Elevator' (function (this)
 				button.Parent = self.model.Unit.Display.TransporterSurfaceGui.Main.Elevator
 				button.Position = UDim2.new(0,0,0.1*(i- 1),0)
 				button.Visible = true
-				button.Text = "|||Go to floor " .. i
+				button.Text = "||| Go to floor " .. (#self.outerDoors - i + 1)
 				v[3] = button
 				self.buttonProp:addObject(button)
 				

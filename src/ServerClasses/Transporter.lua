@@ -237,7 +237,7 @@ Classes.class 'Transporter' (function (this)
 		button.Parent = self.model.Unit.Display.TransporterSurfaceGui.Main.SF
 		button.Position = UDim2.new(0,0,0.1*(self.numLinkedTo - 1),0)
 		button.Visible = true
-		button.Text = "|||" .. other.name
+		button.Text = "||| " .. other.name
 		
 		self.destinationButtons[button] = other
 		self.buttonProp:addObject(button)
