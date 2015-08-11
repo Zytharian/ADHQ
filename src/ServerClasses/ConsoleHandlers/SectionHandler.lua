@@ -133,7 +133,7 @@ cs.class 'SectionHandler' : extends "ConsoleHandler" (function (this)
 			table.insert(t, {CEnums.ScreenType.OnlineOffline, "State", s:getMode() ~= LEnums.SectionMode:GetItem"Lockdown", "Normal", "Lockdown" })
 			
 			-- Lights
-			table.insert(t, {CEnums.ScreenType.OnlineOffline, "Lights", not s.lightsEnabled})
+			table.insert(t, {CEnums.ScreenType.OnlineOffline, "Lights", s.lightsEnabled})
 			
 			-- Power
 			table.insert(t, {CEnums.ScreenType.OnlineOffline, "Power", s:getMode() ~= LEnums.SectionMode:GetItem"Unpowered"})
