@@ -99,6 +99,11 @@ cs.class 'Override' (function (this)
 		end
 		
 		wait(5)
+		
+		local lightNormal = Color3.new(1, 248/255, 220/255)
+		for _,v in next, self.network:getSections() do
+			v:setLightingColor(lightNormal)
+		end
 		self.network:setMode(LEnums.SectionMode:GetItem"Normal")
 		if self.network:getTrain() ~= nil then
 			self.network:getTrain():setEnabled(true)

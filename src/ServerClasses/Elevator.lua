@@ -175,7 +175,7 @@ Classes.class 'Elevator' (function (this)
 		
 		-- Move reference part
 		local diff = data[2].Y - self.currentOuter[2].Y
-		local smooth = 12
+		local smooth = 6
 		
 		local change = Vector3.new(0, (diff > 0 and 1 or -1)/smooth, 0)
 		for i=1, math.abs(diff*smooth) do

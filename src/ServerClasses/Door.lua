@@ -65,14 +65,32 @@ Classes.class 'Door' (function (this)
 			end)
 		end
 		
+		local resetTime = 5
+		local closeTime = 0
+		local touchedRunning = false
 		local onTouched = (function ()
 			self.controllerUsed:Fire()
-			if self.mode == LEnums.DeviceMode:GetItem"Normal" and not self.isOpen then
+			closeTime = resetTime + tick()
+			
+			if not touchedRunning and self.mode == LEnums.DeviceMode:GetItem"Normal" and not self.isOpen then
+				touchedRunning = true
 				self:changeOpenState()
-				wait(5)
+				
+				while tick() < closeTime do
+					wait(0.5)
+					
+					-- Closed by something else or mode changed
+					if self.mode ~= LEnums.DeviceMode:GetItem"Normal" or not self.isOpen then
+						touchedRunning = false
+						return
+					end
+				end
+				
 				if self.isOpen and self.mode == LEnums.DeviceMode:GetItem"Normal" then
 					self:changeOpenState()
 				end
+				
+				touchedRunning = false
 			end
 		end)
 		
@@ -237,8 +255,13 @@ Classes.class 'Door' (function (this)
 
 		if mode == DeviceMode:GetItem"Unpowered" then
 			color = {BrickColor.Black(), BrickColor.Black(), BrickColor.Black()}
+			if self.model:FindFirstChild"ForceField" then
+				self:changeStateAsync(false)
+			end
 		elseif mode == DeviceMode:GetItem"Normal" then
-			if not hasController then 
+			if self.model:FindFirstChild"ForceField" then
+				self:changeStateAsync(true)
+			elseif not hasController then 
 				self:changeStateAsync(false)
 			end
 			color = {BrickColor.new("Medium blue"), BrickColor.new("Medium blue"), BrickColor.new("Medium blue")}

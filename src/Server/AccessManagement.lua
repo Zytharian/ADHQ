@@ -1,20 +1,29 @@
 local privilegedUsers = {
-	"Atlantiscorp";
-	"Legend26";
-	"andy6a6";
-	"Yolopanther";
-	"Ganondude";
-	"flames911";
-	"ArmyModder";
-	"eumesmo92";
-	"Player1";
+	-- AD Owner
+	1916739; -- Atlantiscorp
+
+	-- AD HC
+	1222116; -- Andy6a6
+	1614232; -- Eumesmo92
+	1021552; -- Legend26
+	6845272; -- Myriden
+	1022526; -- Yolopanther
+	
+	-- Other
+	6544405; -- ArmyModder
+	1374878; -- Flames911
+	32427  ; -- Ganondude
+	1661611; -- TheSmartRat
+	
+	-- Test
+	-1     ; -- Server test player
 }
 
 local Access = {}
 
 Access.IsPrivilegedUser = (function (player)
-	for _, privlegedName in next, privilegedUsers do
-		if privlegedName:lower() == player.Name:lower() then
+	for _, id in next, privilegedUsers do
+		if id == player.userId then
 			return true
 		end
 	end
