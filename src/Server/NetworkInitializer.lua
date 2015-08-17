@@ -14,6 +14,7 @@ local CONSOLES_ENABLED = true
 local TRAIN_ENABLED = true
 local OVERRIDE_ENABLED = true
 local RING_INTERFACE_ENABLED = true
+local TELESTAIRS_ENABLED = true
 
 --------
 -- Header end
@@ -34,6 +35,7 @@ createNetwork = (function (model)
 	local sectionList = {}
 	local transporterList = {}
 	local ringsList = {}
+	local stairsList = {}
 	
 	dPrint("-> Creating sections", DEBUG)
 	for _,section in next,  model.Sections:GetChildren() do
@@ -77,6 +79,29 @@ createNetwork = (function (model)
 			table.insert(transporterList, transClass)
 			
 			dPrint("-> -> created transporter " .. model.Name.. "::" .. transClass.name, DEBUG)
+		end
+	end
+	
+	if TELESTAIRS_ENABLED and model:FindFirstChild("TeleStairs") then
+		dPrint("-> Creating telestairs", DEBUG)
+		for _,stairset in next, model.TeleStairs:GetChildren() do
+			local stairClass = Classes.new 'TeleStairs' (stairset)					
+			table.insert(stairsList, stairClass)
+					
+			dPrint("-> -> created telesairs " .. model.Name.. "::" .. stairClass.name, DEBUG)
+		end
+		--Linker
+		for _,step in next, stairsList do
+			if (not step.paired) then
+				local tid = step.targetid
+				for _,step2 in next, stairsList do
+					local sid = step2.id
+					if(sid == tid) then
+						step:pairMe(step2)
+						step2:pairMe(step)
+					end
+				end
+			end
 		end
 	end
 	
