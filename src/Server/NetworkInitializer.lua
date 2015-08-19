@@ -15,6 +15,7 @@ local TRAIN_ENABLED = true
 local OVERRIDE_ENABLED = true
 local RING_INTERFACE_ENABLED = true
 local TELESTAIRS_ENABLED = true
+local POWER_ENABLED = true
 
 --------
 -- Header end
@@ -36,6 +37,7 @@ createNetwork = (function (model)
 	local transporterList = {}
 	local ringsList = {}
 	local stairsList = {}
+	local power = nil
 	
 	dPrint("-> Creating sections", DEBUG)
 	for _,section in next,  model.Sections:GetChildren() do
@@ -114,7 +116,11 @@ createNetwork = (function (model)
 		end
 	end
 	
-	local networkClass = Classes.new 'Network' (model, sectionList, transporterList, train, ringsList)
+	if POWER_ENABLED and model:FindFirstChild"Power" then
+		power = Classes.new 'Power' (model.Power)
+	end
+	
+	local networkClass = Classes.new 'Network' (model, sectionList, transporterList, train, ringsList, power)
 	
 	if CONSOLES_ENABLED then
 		local consoleManager = Classes.new 'ConsoleManager' (networkClass)

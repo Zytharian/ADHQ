@@ -108,6 +108,9 @@ cs.class 'Override' (function (this)
 		if self.network:getTrain() ~= nil then
 			self.network:getTrain():setEnabled(true)
 		end
+		if self.network:getPower() ~= nil then
+			self.network:getPower():endCountdown()
+		end
 		
 		self.model.Button.BrickColor = BrickColor.Blue()
 		for i,v in next, self.model:GetChildren() do

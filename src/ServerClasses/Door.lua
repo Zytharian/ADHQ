@@ -252,6 +252,7 @@ Classes.class 'Door' (function (this)
 		local DeviceMode = LEnums.DeviceMode
 		local color
 		local hasController = self.model:FindFirstChild"Control"
+		local hasCustomTouch = self.model:FindFirstChild"CustomTouch" and true or false
 
 		if mode == DeviceMode:GetItem"Unpowered" then
 			color = {BrickColor.Black(), BrickColor.Black(), BrickColor.Black()}
@@ -261,7 +262,7 @@ Classes.class 'Door' (function (this)
 		elseif mode == DeviceMode:GetItem"Normal" then
 			if self.model:FindFirstChild"ForceField" then
 				self:changeStateAsync(true)
-			elseif not hasController then 
+			elseif not hasController and hasCustomTouch then 
 				self:changeStateAsync(false)
 			end
 			color = {BrickColor.new("Medium blue"), BrickColor.new("Medium blue"), BrickColor.new("Medium blue")}

@@ -11,7 +11,7 @@ local LEnums = require(projectRoot.Modules.Enums)
 
 	Properties:
 		readonly string name
-		bool lockout
+		bool lockoutEnabled
 
 	Methods:
 		table getSections()
@@ -19,6 +19,7 @@ local LEnums = require(projectRoot.Modules.Enums)
 		table getTransporters()
 		table getRings()
 		Train getTrain()
+		Power getPower()
 		LEnums::SectionMode getMode()
 		void setMode(LEnums::SectionMode mode)
 	Events:
@@ -36,15 +37,23 @@ Classes.class 'Network' (function (this)
 			Train train
 			LEnums::SectionMode mode
 			string ringAddress
+			Power power
 	]]
 
-	function this:init (name, sectionList, transporterList, train, rings)
+	function this:init (name, sectionList, transporterList, train, rings, power)
 		self.name = name
 		self.sections = Util.shallowCopyTable(sectionList)
 		self.transporters =  Util.shallowCopyTable(transporterList)
 		self.train = train
 		self.rings = rings
 		self.mode = LEnums.SectionMode:GetItem"Normal"
+		self.power = power
+		
+		if self.power then
+			self.power.powerStateChanged:Connect(function (enabled)
+				self:setMode(LEnums.SectionMode:GetItem(enabled and "Normal" or "Unpowered"))
+			end)
+		end
 		
 		self.lockoutEnabled = false
 		self.lockoutChanged = Classes.new 'Signal' ()
@@ -73,6 +82,10 @@ Classes.class 'Network' (function (this)
 	
 	function this.member:getTrain()
 		return self.train
+	end
+	
+	function this.member:getPower()
+		return self.power
 	end
 	
 	function this.member:getMode()
@@ -140,6 +153,7 @@ Classes.class 'Network' (function (this)
 	this.get.getTrain = true
 	this.get.setMode = true
 	this.get.getMode = true
+	this.get.getPower = true
 	
 	-- public events
 	this.get.lockoutChanged = true
