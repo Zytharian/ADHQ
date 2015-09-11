@@ -43,26 +43,39 @@ createNetwork = (function (model)
 	for _,section in next,  model.Sections:GetChildren() do
 		
 		local doorList = {}
-		local lightList
+		local lightList = {}
 		local consoleList
+		local windowGuard
 		
-		if DOORS_ENABLED then
+		if DOORS_ENABLED and section:FindFirstChild"Doors" then
 			for _,door in next, section.Doors:GetChildren() do
 				local doorClass = Classes.new 'Door' (door)
 				table.insert(doorList, doorClass)
 			end
 		end
 		
-		
+		lightList.neons = {}
 		if section:FindFirstChild"Lighting" then
-			lightList = Util.findAll(section.Lighting, "Light")
+			lightList.lights = Util.findAll(section.Lighting, "Light")
+			for _,v in next, Util.findAll(section.Lighting, "BasePart") do
+				if v.Material == Enum.Material.Neon then
+					lightList.neons[v] = v.BrickColor
+				end
+				if v.Name == "TrueLight" then -- Hide massive gray TrueLight parts
+					v.Transparency = 1
+				end
+			end
 		else
-			lightList = {}
+			lightList.lights = {}
 		end
 		
 		consoleList = section:FindFirstChild"Consoles" and section.Consoles:GetChildren() or {}
 		
-		local sectionClass = Classes.new 'Section' (section.Name, doorList, lightList, consoleList)
+		if section:FindFirstChild"Windows" then
+			windowGuard = Classes.new 'WindowGuard' (section.Windows)
+		end
+		
+		local sectionClass = Classes.new 'Section' (section.Name, doorList, lightList, consoleList, windowGuard)
 		table.insert(sectionList, sectionClass)
 		
 		dPrint("-> -> created section " .. model.Name .. "::" .. sectionClass.name, DEBUG)

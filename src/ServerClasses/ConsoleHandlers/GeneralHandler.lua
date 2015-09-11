@@ -185,8 +185,8 @@ cs.class 'GeneralHandler' : extends "ConsoleHandler"  (function (this)
 		if self.inRedAlert == enabled then return end
 		self.inRedAlert = enabled
 		
-		local RED = Color3.new(1, 0, 0)
-		local NORMAL = Color3.new(1, 248/255, 220/255)
+		local RED = Color3.new(1, 100/255, 100/255)
+		local NORMAL = Color3.new(1, 229/255, 205/255)
 		
 		local sections = self.network:getSections()
 		for _,v in next, sections do

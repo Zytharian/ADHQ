@@ -81,15 +81,21 @@ cs.class 'SectionHandler' : extends "ConsoleHandler" (function (this)
 				section:setMode(LEnums.SectionMode:GetItem"Unpowered")
 			end
 			self.networkUpdate:Fire({tab = dat.tab; index = 2; newState = dat.newState}) -- Update light
+		elseif dat.index == 4 and section.windowGuard then
+			if section:getMode() == LEnums.SectionMode:GetItem"Unpowered" then
+				return false -- No power to modify anything
+			end
+			
+			section.windowGuard:setEnabled(dat.newState)
 		end
-		if dat.index <= 3 then
+		if dat.index <= 3 or (dat.index == 4 and section.windowGuard) then
 			self.networkUpdate:Fire({tab = dat.tab; index = dat.index; newState = dat.newState})
 			return true
 		elseif section:getMode() == LEnums.SectionMode:GetItem"Unpowered" then
 			return false -- No power to modify anything.
 		end
 		
-		local trueIndex = dat.index - 3
+		local trueIndex = dat.index - (section.windowGuard and 4 or 3)
 		local doorId = math.ceil(trueIndex / 3)
 		local door = section:getDoors()[doorId]
 		local option = trueIndex - (doorId - 1)* 3
@@ -137,7 +143,12 @@ cs.class 'SectionHandler' : extends "ConsoleHandler" (function (this)
 			
 			-- Power
 			table.insert(t, {CEnums.ScreenType.OnlineOffline, "Power", s:getMode() ~= LEnums.SectionMode:GetItem"Unpowered"})
-				
+			
+			-- Window Guard
+			if s.windowGuard then
+				table.insert(t, {CEnums.ScreenType.OnlineOffline, "Window Tint", s.windowGuard.enabled })
+			end
+			
 			for _,d in next, s:getDoors() do
 				table.insert(t, {CEnums.ScreenType.Section, "Door: " .. d.name })
 				table.insert(t, {CEnums.ScreenType.OnlineOffline, "Open State", d.isOpen, "Open", "Closed" })

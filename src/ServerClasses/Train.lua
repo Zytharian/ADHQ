@@ -65,14 +65,25 @@ cs.class 'Train' (function (this)
 		eventProp:addObject(self.pointAControl.MainRegion.CallButton)
 		eventProp:addObject(self.pointBControl.MainRegion.CallButton)
 		
+		local buttonDebounce = false
 		eventProp.eventFired:Connect(function (player, obj)
-			if self.isMoving or not self.enabled then
+			if self.isMoving or not self.enabled or buttonDebounce then
 				return
 			end
+			buttonDebounce = true
 			
-			wait(5)
+			local bounceTime = 10
+			local baseText = "Moving in "
+			for i=bounceTime, 1, -1 do
+				local text = baseText .. i .. "s"
+				self.pointAControl.MainRegion.ActState.Text = text
+				self.pointAControl.MainRegion.ActState.Text = text
+				wait(1)
+			end
 			
 			self:moveTrain(self.currentPoint == self.pointA and self.pointB or self.pointA)
+			
+			buttonDebounce = false
 		end)
 
 		--

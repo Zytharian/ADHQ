@@ -12,6 +12,7 @@ local Util = require(projectRoot.Modules.Utilities)
 	Properties:
 		readonly string name
 		readonly bool lightsEnabled
+		readonly WindowGuard windowGuard
 
 	Methods:
 		table getDoors()
@@ -36,10 +37,11 @@ Classes.class 'Section' (function (this)
 			LEnums::SectionMode
 	]]
 
-	function this:init (name, doors, lights, consoles)
+	function this:init (name, doors, lights, consoles, windowGuard)
 		self.name = name
 		self.doors = doors
 		self.lights = lights
+		self.windowGuard = windowGuard
 		self.lightsEnabled = true
 
 		self.consoles = consoles
@@ -66,14 +68,18 @@ Classes.class 'Section' (function (this)
 	end
 
 	function this.member:setLightingColor(color)
-		for _,v in next, self.lights do
+		for _,v in next, self.lights.lights do
 			v.Color = color
 		end
 	end
 
 	function this.member:setLightingEnabled(enabled)
-		for _,v in next, self.lights do
+		for _,v in next, self.lights.lights do
 			v.Enabled = enabled
+		end
+		for part,originalColor in next, self.lights.neons do
+			part.Material = enabled and Enum.Material.Neon or Enum.Material.SmoothPlastic
+			part.BrickColor = enabled and originalColor or BrickColor.Black()
 		end
 		self.lightsEnabled = enabled
 	end
@@ -134,6 +140,7 @@ Classes.class 'Section' (function (this)
 	-- public properties
 	this.get.name = true
 	this.get.lightsEnabled = true
+	this.get.windowGuard = true
 
 	-- public methods
 	this.get.getDoors = true
