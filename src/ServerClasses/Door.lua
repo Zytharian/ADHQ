@@ -257,7 +257,7 @@ Classes.class 'Door' (function (this)
 		if mode == DeviceMode:GetItem"Unpowered" then
 			color = {BrickColor.Black(), BrickColor.Black(), BrickColor.Black()}
 			if self.model:FindFirstChild"ForceField" then
-				self:changeStateAsync(false)
+				self:changeStateAsync(true)
 			end
 		elseif mode == DeviceMode:GetItem"Normal" then
 			if self.model:FindFirstChild"ForceField" then

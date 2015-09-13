@@ -55,8 +55,11 @@ createNetwork = (function (model)
 		end
 		
 		lightList.neons = {}
+		lightList.lights = {}
 		if section:FindFirstChild"Lighting" then
-			lightList.lights = Util.findAll(section.Lighting, "Light")
+			for _,v in next, Util.findAll(section.Lighting, "Light") do
+				lightList.lights[v] = v.Color
+			end
 			for _,v in next, Util.findAll(section.Lighting, "BasePart") do
 				if v.Material == Enum.Material.Neon then
 					lightList.neons[v] = v.BrickColor
@@ -65,8 +68,6 @@ createNetwork = (function (model)
 					v.Transparency = 1
 				end
 			end
-		else
-			lightList.lights = {}
 		end
 		
 		consoleList = section:FindFirstChild"Consoles" and section.Consoles:GetChildren() or {}

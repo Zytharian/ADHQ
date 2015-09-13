@@ -31,11 +31,13 @@ cs.class 'WindowGuard' (function (this)
 	--[[
 		Internal properties:
 			paneStats
+			asyncTransitors
 	]]
 
 	function this:init (windowModel)
 		self.paneStats = {}
-		self.guard = false
+		self.enabled = false
+		self.asyncTransitors = 0
 		
 		for _, windowPart in next, Util.findAll(windowModel, "BasePart") do
 			table.insert(self.paneStats, {
@@ -57,10 +59,40 @@ cs.class 'WindowGuard' (function (this)
 		end
 		
 		for _, stat in next, self.paneStats do
-			stat.part.Transparency = enabled and 0 or stat.originalTransparency
-			stat.part.Reflectance = enabled and 0 or stat.originalReflectance
+			self:transitionPartAsync(stat, enabled)
 		end
 		self.enabled = not self.enabled
+	end
+	
+	function this.member:transitionPartAsync(stat, enabled)
+		coroutine.wrap(function ()
+			local oldT, oldR, newT, newR
+			if enabled then
+				oldT = stat.originalTransparency
+				oldR = stat.originalReflectance
+				newT = 0
+				newR = 0
+			else
+				newT = stat.originalTransparency
+				newR = stat.originalReflectance
+				oldT = 0
+				oldR = 0
+			end
+			
+			local count = 30
+			for i = 1, count do
+				local percent = i / count
+				stat.part.Transparency = self:lerp(oldT, newT, percent)
+				stat.part.Reflectance = self:lerp(oldR, newR, percent)
+			
+				wait()
+			end
+			
+		end)()
+	end
+	
+	function this.member:lerp(begin, ending, percent)
+		return (1-percent)*begin + percent*ending
 	end
 	
 	-- public properties

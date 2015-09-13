@@ -35,6 +35,8 @@ Classes.class 'Section' (function (this)
 			table lights
 			table consoles
 			LEnums::SectionMode
+			
+			for lights -- {lights = {Rbx::Light = Rbx::Color3}; neons = {Rbx::BasePart = Rbx::BrickColor}
 	]]
 
 	function this:init (name, doors, lights, consoles, windowGuard)
@@ -68,14 +70,14 @@ Classes.class 'Section' (function (this)
 	end
 
 	function this.member:setLightingColor(color)
-		for _,v in next, self.lights.lights do
-			v.Color = color
+		for light,original in next, self.lights.lights do
+			light.Color = color and color or original
 		end
 	end
 
 	function this.member:setLightingEnabled(enabled)
-		for _,v in next, self.lights.lights do
-			v.Enabled = enabled
+		for light,_ in next, self.lights.lights do
+			light.Enabled = enabled
 		end
 		for part,originalColor in next, self.lights.neons do
 			part.Material = enabled and Enum.Material.Neon or Enum.Material.SmoothPlastic

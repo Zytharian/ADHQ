@@ -186,11 +186,10 @@ cs.class 'GeneralHandler' : extends "ConsoleHandler"  (function (this)
 		self.inRedAlert = enabled
 		
 		local RED = Color3.new(1, 100/255, 100/255)
-		local NORMAL = Color3.new(1, 229/255, 205/255)
 		
 		local sections = self.network:getSections()
 		for _,v in next, sections do
-			v:setLightingColor(enabled and RED or NORMAL)
+			v:setLightingColor(enabled and RED or nil)
 		end
 	end
 	
