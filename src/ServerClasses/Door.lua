@@ -95,7 +95,10 @@ Classes.class 'Door' (function (this)
 		end)
 		
 		local hasCustomTouch = self.model:FindFirstChild"CustomTouch" and true or false
-		local doorList = {Left = true, Right = true, Up = true, Down = true, Rotate = true, PartialRotate = true}
+		local doorList = {
+				Left = true, Right = true, Up = true, Down = true, 
+				Rotate = true, PartialRotate = true, Forward = true, Back = true
+			}
 		for _,v in next, model:GetChildren() do
 			if doorList[v.Name] and v:FindFirstChild"Main" then
 				v.PrimaryPart = v.Main
@@ -127,6 +130,8 @@ Classes.class 'Door' (function (this)
 		
 		if self.model:FindFirstChild"Left" or self.model:FindFirstChild"Right" then
 			self:openStateImpl_Horizontal(smooth)
+		elseif self.model:FindFirstChild"Forward" or self.model:FindFirstChild"Back" then
+			self:openStateImpl_Depth(smooth)
 		elseif self.model:FindFirstChild"Up" or self.model:FindFirstChild"Down" then
 			self:openStateImpl_Vertical(smooth)
 		elseif self.model:FindFirstChild"Rotate" then
@@ -181,6 +186,40 @@ Classes.class 'Door' (function (this)
 			if hasRight then
 				self.model.Right:SetPrimaryPartCFrame(
 					self.model.Right.PrimaryPart.CFrame + (self.isOpen and -CF or CF))
+			end
+			
+			wait()
+		end
+	end
+	
+	function this.member:openStateImpl_Depth(smooth)
+		local ref = nil
+		
+		local hasForward = self.model:FindFirstChild"Forward"
+		local hasBack = self.model:FindFirstChild"Back"
+		
+		if hasForward then
+			ref = self.model.Forward.PrimaryPart
+		else
+			ref = self.model.Back.PrimaryPart
+		end
+		
+		local refNum = ref.Size.X
+		
+		for i=1, refNum * smooth do
+			local CF = (ref.CFrame*CFrame.Angles(0,math.pi/2,0)).lookVector * (1/smooth)
+			if not hasForward and hasBack then
+				CF = -CF
+			end
+			
+			if hasForward then
+				self.model.Forward:SetPrimaryPartCFrame(
+					self.model.Forward.PrimaryPart.CFrame + (self.isOpen and CF or -CF))
+			end
+		
+			if hasBack then
+				self.model.Back:SetPrimaryPartCFrame(
+					self.model.Back.PrimaryPart.CFrame + (self.isOpen and -CF or CF))
 			end
 			
 			wait()

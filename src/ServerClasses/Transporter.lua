@@ -192,6 +192,8 @@ Classes.class 'Transporter' (function (this)
 				end
 			end
 			
+			self:setLightingEnabled(false)
+			
 		elseif mode == deviceMode:GetItem"Normal" then
 			if not self.isRunning and not self.elevator.isRunning then
 				self.mainDoor:setMode(deviceMode:GetItem"Normal")
@@ -204,19 +206,30 @@ Classes.class 'Transporter' (function (this)
 				end
 			end
 			
+			self:setLightingEnabled(true)
+			
 		elseif mode == deviceMode:GetItem"LocalLock" then
 			if not self.isRunning and not self.elevator.isRunning then
 				self.mainDoor:setMode(deviceMode:GetItem"LocalLock")
 				self.shutter:changeStateAsync(false)
 			end
+			self:setLightingEnabled(true)
+			
 		elseif mode == deviceMode:GetItem"GeneralLock" then
 			if not self.isRunning and not self.elevator.isRunning then
 				self.mainDoor:setMode(deviceMode:GetItem"GeneralLock")
 				self.shutter:changeStateAsync(false)
 			end
+			self:setLightingEnabled(true)
 			
 		else
 			error("Unknown door mode: " .. tostring(mode))
+		end
+	end
+	
+	function this.member:setLightingEnabled(enabled)
+		if self.model:FindFirstChild"Light" then
+			self.model.Light.RealLight.SurfaceLight.Enabled = enabled
 		end
 	end
 	

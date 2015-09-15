@@ -64,7 +64,7 @@ Classes.class 'Elevator' (function (this)
 			for _,v in next, self.outerDoors do
 				v[1]:setMode(LEnums.DeviceMode:GetItem "InterfaceDisabled")
 				
-				if math.floor(v[2].Y + 0.5) == math.floor(model.Unit.Ref.Position.Y+ 0.5) then
+				if math.abs(v[2].Y - model.Unit.Ref.Position.Y) < 0.5 then
 					self.currentOuter = v
 					self.currentOuter[1]:changeStateAsync(true) -- initally open
 				else
@@ -73,7 +73,7 @@ Classes.class 'Elevator' (function (this)
 			end
 			
 			if not self.currentOuter then
-				error("No current floor detected!")
+				error("No current floor detected for elevator " .. model:GetFullName())
 			end
 			
 			-- Set up elevator gui
