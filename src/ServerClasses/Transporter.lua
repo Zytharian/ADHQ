@@ -187,9 +187,7 @@ Classes.class 'Transporter' (function (this)
 			end
 			
 			for _,v in next, self.model.Unit.Display.TransporterSurfaceGui:GetChildren() do
-				if v.Name ~= "Background" then
-					v.Visible = false
-				end
+				v.Visible = false
 			end
 			
 			self:setLightingEnabled(false)
@@ -201,9 +199,7 @@ Classes.class 'Transporter' (function (this)
 			end
 			
 			for _,v in next, self.model.Unit.Display.TransporterSurfaceGui:GetChildren() do
-				if v.Name ~= "Background" then
-					v.Visible = true
-				end
+				v.Visible = true
 			end
 			
 			self:setLightingEnabled(true)
@@ -213,6 +209,7 @@ Classes.class 'Transporter' (function (this)
 				self.mainDoor:setMode(deviceMode:GetItem"LocalLock")
 				self.shutter:changeStateAsync(false)
 			end
+			self.model.Unit.Display.TransporterSurfaceGui.Background.Visible = true
 			self:setLightingEnabled(true)
 			
 		elseif mode == deviceMode:GetItem"GeneralLock" then
@@ -220,6 +217,7 @@ Classes.class 'Transporter' (function (this)
 				self.mainDoor:setMode(deviceMode:GetItem"GeneralLock")
 				self.shutter:changeStateAsync(false)
 			end
+			self.model.Unit.Display.TransporterSurfaceGui.Background.Visible = true
 			self:setLightingEnabled(true)
 			
 		else
@@ -228,8 +226,9 @@ Classes.class 'Transporter' (function (this)
 	end
 	
 	function this.member:setLightingEnabled(enabled)
-		if self.model:FindFirstChild"Light" then
-			self.model.Light.RealLight.SurfaceLight.Enabled = enabled
+		if self.model.Unit:FindFirstChild"Light" then
+			self.model.Unit.Light.RealLight.SurfaceLight.Enabled = enabled
+			self.model.Unit.Light.Neon.Material = enabled and Enum.Material.Neon or Enum.Material.Plastic 
 		end
 	end
 	
