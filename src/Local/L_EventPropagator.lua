@@ -1,3 +1,5 @@
+-- Zytharian (roblox: Legend26)
+
 -- Services
 local Replicated = game:GetService("ReplicatedStorage")
 

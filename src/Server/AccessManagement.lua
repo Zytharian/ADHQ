@@ -1,3 +1,5 @@
+-- Zytharian (roblox: Legend26)
+
 local privilegedUsers = {
 	-- AD Owner
 	1916739; -- Atlantiscorp

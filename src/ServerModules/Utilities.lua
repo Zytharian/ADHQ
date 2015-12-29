@@ -1,3 +1,5 @@
+-- Zytharian (roblox: Legend26)
+
 -- Exported object
 local UTIL = {}
 

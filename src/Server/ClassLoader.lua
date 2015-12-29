@@ -1,3 +1,5 @@
+-- Zytharian (roblox: Legend26)
+
 -- Initialize all the classes
 
 local projectRoot = game.ServerScriptService

@@ -1,3 +1,5 @@
+-- Zytharian (roblox: Legend26)
+
 -- exported object
 local ENUMS = {}
 

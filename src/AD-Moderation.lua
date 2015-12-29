@@ -1,3 +1,5 @@
+-- Zytharian (roblox: Legend26)
+
 --Ancient Domain Moderation System v2.3
 
 --[[
