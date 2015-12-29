@@ -159,7 +159,7 @@ Classes.class 'Transporter' (function (this)
 			end
 		end
 		
-		wait(2)
+		wait(4)
 		
 		self.isRunning = false
 		

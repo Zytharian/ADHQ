@@ -175,7 +175,7 @@ Classes.class 'Elevator' (function (this)
 		Util.Welding.weld(self.model.Unit.PrimaryPart, self.model.Unit.RefferenceSite, welds, "Motor")
 		self.model.Unit.PrimaryPart.Anchored = false
 		
-		wait() -- welds/motors take a frame to actually create/delete properly
+		wait(0.5) -- welds/motors take a frame to actually create/delete properly. 0.5 accounts for most lag conditions
 		-- Move reference part. instantly if no players inside
 		local diff = data[2].Y - self.currentOuter[2].Y
 		if #players == 0 then
