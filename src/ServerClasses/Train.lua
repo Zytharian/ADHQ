@@ -77,7 +77,7 @@ cs.class 'Train' (function (this)
 			for i=bounceTime, 1, -1 do
 				local text = baseText .. i .. "s"
 				self.pointAControl.MainRegion.ActState.Text = text
-				self.pointAControl.MainRegion.ActState.Text = text
+				self.pointBControl.MainRegion.ActState.Text = text
 				wait(1)
 			end
 			
@@ -145,7 +145,7 @@ cs.class 'Train' (function (this)
 		
 		-- Move reference part
 		local diff = point.X - self.currentPoint.X
-		local smooth = 1
+		local smooth = 0.5
 		
 		local change = Vector3.new( (diff > 0 and 1 or -1)/smooth, 0, 0)
 		local steps = math.abs(diff*smooth) 

@@ -344,7 +344,7 @@ GUI.createGuiModel = (function (view, player)
 			if status then
 				view.setStatus("ERROR: " .. status)
 			else
-				view.setStatus("ERROR: NO STATUS KNOWN")
+				view.setStatus("ERROR: No status known")
 			end
 			view.openScreen()
 			return
@@ -365,7 +365,11 @@ GUI.createGuiModel = (function (view, player)
 		
 		updateConnection = replicated.CON_E_NetworkUpdate.OnClientEvent:connect(networkUpdateHandler)
 		
-		view.setStatus("ConsoleType: " .. consoleType .. "; NetId: " .. currentNetId .. "; ConsoleId: " .. currentConsoleId)
+		local statusString = "ConsoleType: " .. consoleType .. "; NetId: " .. currentNetId .. "; ConsoleId: " .. currentConsoleId
+		if status then
+			statusString = statusString .. "; Status: " .. status
+		end
+		view.setStatus(statusString)
 		
 		if view.isScreenOpen() then
 			print("WARNING: Screen already open.")

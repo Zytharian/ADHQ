@@ -9,6 +9,7 @@ local Util = require(projectRoot.Modules.Utilities)
 
 -- Configuration
 local DEBUG = false
+local replicatedAlarmFlagName = "FLAG_AlarmPlaying"
 
 --[[
 	init(Rbx::Model model, Network network)
@@ -91,6 +92,11 @@ cs.class 'Override' (function (this)
 		self.network.lockoutEnabled = true
 		self.network:setMode(LEnums.SectionMode:GetItem"Unpowered")
 		
+		-- Turn off the alarm if applicable
+		if RS:FindFirstChild(replicatedAlarmFlagName) then
+			RS[replicatedAlarmFlagName].Value = false
+		end
+		
 		self.model.Button.BrickColor = BrickColor.Red()
 		for i,v in next, self.model:GetChildren() do
 			if v.Name == "Glow" then
@@ -98,7 +104,7 @@ cs.class 'Override' (function (this)
 			end
 		end
 		
-		wait(5)
+		wait(8)
 		
 		local lightNormal = Color3.new(1, 248/255, 220/255)
 		for _,v in next, self.network:getSections() do

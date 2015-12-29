@@ -22,7 +22,7 @@ local POWER_ENABLED = true
 --------
 
 local netModel = workspace["1_HQ_Network"]
-local networkModels = {netModel.Main, netModel.Island}
+local networkModels = {netModel.Main, netModel.Island, netModel.Hidden}
 local dPrint = Util.Debug.print
 
 local train

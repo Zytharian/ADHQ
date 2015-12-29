@@ -119,9 +119,9 @@ Classes.class 'ConsoleManager' (function (this)
 			end
 
 			if console.section:getMode() == LEnums.SectionMode:GetItem"Unpowered" then
-				return nil, nil, nil, "NO POWER"
+				return nil, nil, nil, "No power"
 			elseif self.network.lockoutEnabled and not _G.Access.IsPrivilegedUser(player) then
-				return nil, nil, nil, "CONSOLE LOCKOUT"
+				return nil, nil, nil, "Console lockout"
 			end
 
 			local dat = {}
@@ -139,7 +139,13 @@ Classes.class 'ConsoleManager' (function (this)
 				conType = CEnums.ConsoleType.Local
 			end
 
-			return dat, conType, self.networkId
+			-- alert privileged users that console lockout in effect so they don't have to check a core console
+			local status = nil
+			if self.network.lockoutEnabled then
+				status = "Console lockout"
+			end
+			
+			return dat, conType, self.networkId, status
 		end)
 		RS.CON_F_GetBatchInformation.OnServerInvoke = lastGetBatch
 

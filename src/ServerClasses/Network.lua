@@ -50,7 +50,15 @@ Classes.class 'Network' (function (this)
 		self.power = power
 		
 		if self.power then
+			self.power.allowPowerdownSequence = (function ()
+				return not self.lockoutEnabled
+			end)
+			
 			self.power.powerStateChanged:Connect(function (enabled)
+				if self.lockoutEnabled then
+					return
+				end
+				
 				self:setMode(LEnums.SectionMode:GetItem(enabled and "Normal" or "Unpowered"))
 			end)
 		end
@@ -136,12 +144,16 @@ Classes.class 'Network' (function (this)
 	this.get.name = true
 	this.get.lockoutEnabled = true
 	
-	function this.set:lockoutEnabled (index, value)
+	function this.set:lockoutEnabled (index, value)	
 		if self.lockoutEnabled == value then
 			return
 		end
 		
 		self.lockoutEnabled = value
+		
+		if value then
+			self.power:endCountdown()
+		end
 		self.lockoutChanged:Fire(value)
 	end
 

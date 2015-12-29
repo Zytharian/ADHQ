@@ -8,6 +8,7 @@ local cs = require(projectRoot.Modules.ClassSystem)
 local powerMonitorSurfaceGui = game.ReplicatedStorage.PowerMonitorSurfaceGui
 local powerMonitorSurfaceGuiName = "PowerMonitorSurfaceGui"
 local crystalColor = BrickColor.new("Brick yellow")
+local powerdownDenied = BrickColor.new("Bright violet")
 
 --[[
 	init(Rbx::Model model)
@@ -22,7 +23,7 @@ local crystalColor = BrickColor.new("Brick yellow")
 		powerStateChanged(bool powerEnabled)
 		
 	Callbacks:
-		void
+		bool allowPowerdownSequence()
 		
 ]]
 
@@ -165,6 +166,11 @@ cs.class 'Power' (function (this)
 	function this.member:runCountdownAsync()	
 		if self.countdownRunning then return end
 	
+		if not self.allowPowerdownSequence() then
+			self.switch1:setIndicator(powerdownDenied, powerdownDenied)
+			return
+		end
+	
 		self:monitorAlert(true)
 	
 		self.countdownEnabled = true
@@ -205,6 +211,10 @@ cs.class 'Power' (function (this)
 	
 	-- public events
 	this.get.powerStateChanged = true
+	
+	-- public callbacks
+	this.get.allowPowerdownSequence = true
+	this.set.allowPowerdownSequence = true
 	
 end)
 

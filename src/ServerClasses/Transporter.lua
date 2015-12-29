@@ -112,7 +112,7 @@ Classes.class 'Transporter' (function (this)
 	function this.member:onButtonClicked(player, button)
 		if button == self.optionButton then
 			self.model.Unit.Display.TransporterSurfaceGui.Main.Elevator.Visible = false
-			self.model.Unit.Display.TransporterSurfaceGui.Main.SF.Visible = true
+			self.model.Unit.Display.TransporterSurfaceGui.Main.Transporter.Visible = true
 			return
 		end
 		
@@ -246,8 +246,8 @@ Classes.class 'Transporter' (function (this)
 	
 		-- Add button on gui
 		local button = self.model.Unit.Display.TransporterSurfaceGui.Main.Template:Clone()
-		button.Parent = self.model.Unit.Display.TransporterSurfaceGui.Main.SF
-		button.Position = UDim2.new(0,0,0.1*(self.numLinkedTo - 1),0)
+		button.Parent = self.model.Unit.Display.TransporterSurfaceGui.Main.Transporter
+		button.Position = UDim2.new(0, 0, 0, 75*(self.numLinkedTo - 1))
 		button.Visible = true
 		button.Text = "||| " .. other.name
 		

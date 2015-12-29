@@ -92,7 +92,7 @@ Classes.class 'Elevator' (function (this)
 				-- Add button
 				local button = self.model.Unit.Display.TransporterSurfaceGui.Main.Template:Clone()
 				button.Parent = self.model.Unit.Display.TransporterSurfaceGui.Main.Elevator
-				button.Position = UDim2.new(0,0,0.1*(i- 1),0)
+				button.Position = UDim2.new(0, 0, 0, 75*(i- 1))
 				button.Visible = true
 				button.Text = "||| Go to floor " .. (#self.outerDoors - i + 1)
 				v[3] = button
@@ -113,7 +113,7 @@ Classes.class 'Elevator' (function (this)
 	
 		if button == self.optionButton then
 			self.model.Unit.Display.TransporterSurfaceGui.Main.Elevator.Visible = true
-			self.model.Unit.Display.TransporterSurfaceGui.Main.SF.Visible = false
+			self.model.Unit.Display.TransporterSurfaceGui.Main.Transporter.Visible = false
 			return
 		end
 		
@@ -173,14 +173,19 @@ Classes.class 'Elevator' (function (this)
 		Util.Welding.weld(self.model.Unit.PrimaryPart, self.model.Unit.RefferenceSite, welds, "Motor")
 		self.model.Unit.PrimaryPart.Anchored = false
 		
-		-- Move reference part
+		wait() -- welds/motors take a frame to actually create/delete properly
+		-- Move reference part. instantly if no players inside
 		local diff = data[2].Y - self.currentOuter[2].Y
-		local smooth = 6
-		
-		local change = Vector3.new(0, (diff > 0 and 1 or -1)/smooth, 0)
-		for i=1, math.abs(diff*smooth) do
-			self.model.Unit.RefferenceSite.CFrame = self.model.Unit.RefferenceSite.CFrame + change
-			wait()
+		if #players == 0 then
+			self.model.Unit.RefferenceSite.CFrame = self.model.Unit.RefferenceSite.CFrame + Vector3.new(0, diff, 0)
+		else
+			local smooth = 6
+
+			local change = Vector3.new(0, (diff > 0 and 1 or -1)/smooth, 0)
+			for i=1, math.abs(diff*smooth) do
+				self.model.Unit.RefferenceSite.CFrame = self.model.Unit.RefferenceSite.CFrame + change
+				wait()
+			end		
 		end
 		
 		-- Remove welds, anchor elevator
