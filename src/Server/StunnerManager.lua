@@ -12,10 +12,12 @@ local limitedReload   = 4 -- seconds
 local shotDistance    = 600 -- studs
 local shotSpeed       = 300 -- studs per second
 local stunHandle      = RS.StunnerModels.Stunner_stun
+local hitSound        = "http://www.roblox.com/asset/?id=157325701"
+local fireSound       = "http://www.roblox.com/asset/?id=201858072"
 local killHandle      = RS.StunnerModels.Stunner_kill
 local stunDuration    = 10 -- seconds
 local particleTextre  = "http://www.roblox.com/asset/?id=337883100"
-local gravityConstant = -196.2/2 -- official gravity constant of roblox: 196.2
+local gravityConstant = -196.2/5 -- official gravity constant of roblox: 196.2
 
 --[[
 	Dependencies: AccessManagement; Modules.Utilities
@@ -119,14 +121,30 @@ CreateSplashParticles = (function ()
 	p2.EmissionDirection = Enum.NormalId.Bottom
 	p2.Lifetime = NumberRange.new(1,2)
 	
-	return p1, p2
+	local light = Instance.new("PointLight")
+	light.Color = Color3.new(0.2, 0.2, 1)
+	light.Range = 10
+	
+	return p1, p2, light
+end)
+
+CreateFireParticles = (function ()
+	local fire = Instance.new("Fire")
+	fire.Size = 4
+	fire.Heat = 0
+	
+	local light = Instance.new("PointLight")
+	light.Color = Color3.new(1, 0.2, 0.2)
+	light.Range = 10
+	
+	return fire, light
 end)
 
 Stun = (function (human, character)
 	local torso = character:FindFirstChild"Torso"
 	if not torso then return end
 	
-	local p1, p2 = CreateSplashParticles()
+	local p1, p2, light = CreateSplashParticles()
 	p1.Parent = torso
 	p2.Parent = torso
 	debris:AddItem(p1, 0.5)
@@ -179,9 +197,9 @@ Incinerate = (function (human, character)
 		end
 	end
 	
-	local fire = Instance.new("Fire", character:FindFirstChild"Torso")
-	fire.Size = 4
-	fire.Heat = 0
+	local fire, light = CreateFireParticles()
+	fire.Parent = character:FindFirstChild"Torso"
+	light.Parent = character:FindFirstChild"Torso"
 	
 	for _,v in next, character:GetChildren() do
 		if v:IsA"BasePart" then
@@ -223,6 +241,10 @@ GetHumanoidAndCharacter = (function (part)
 end)
 
 Fire = (function (tool, mouseHitPos)
+	if tool.Handle:FindFirstChild"Sound" then
+		tool.Handle.Sound:Play()
+	end
+
 	local ignoreList = {toolRegistry[tool].player.Character}
 	local part, hitPoint = nil, nil
 	
@@ -257,15 +279,44 @@ Fire = (function (tool, mouseHitPos)
 		end
 	until (bullet.CFrame.p - origin.p).magnitude > shotDistance
 	
-	bullet:Destroy()
+	bullet.Transparency = 1
+	bullet.CFrame = CFrame.new(hitPoint)
+	bullet.Size = Vector3.new(0.2, 0.2, 0.2)
+	bullet.PointLight:Destroy()
+	
+	local impactSoundInst = Instance.new("Sound", bullet)
+	impactSoundInst.SoundId = hitSound
+	impactSoundInst:Play()
 	
 	local human, character = GetHumanoidAndCharacter(part)
 	if human then
+		bullet:Destroy()
 		if killMode then
 			Incinerate(human, character)
 		else
 			Stun(human, character)
 		end
+		bullet:Destroy()
+	else -- hit effect
+		if killMode then
+			local fire, light = CreateFireParticles()
+			fire.Parent = bullet
+			light.Parent = bullet
+			
+			wait(0.25)
+			fire.Enabled = false
+		else
+			local p1, p2, light = CreateSplashParticles()
+			p1.Parent = bullet
+			p2.Parent = bullet
+			light.Parent = bullet
+			
+			wait(0.25)
+			p1.Enabled = false
+			p2.Enabled = false
+		end
+		
+		debris:AddItem(bullet, 1)
 	end
 end)
 
@@ -308,6 +359,9 @@ ReplaceHandle = (function (tool, replacement)
 	replacement.Anchored = false
 	replacement.Name = "Handle"
 	replacement.Parent = tool
+	
+	local shootSound = Instance.new("Sound", replacement)
+	shootSound.SoundId = fireSound
 	
 	if tool.Parent == toolRegistry[tool].player.Character then
 		local human, character = GetHumanoidAndCharacter(tool)
