@@ -90,8 +90,9 @@ Classes.class 'TeleStairs' (function (this)
 			--//If Yes, does their data need reseting?
 			if(element[1] == player) then
 				if(element[3]) then
-					if(element[1].Character ~=nil and element[1].Character.Torso~=nil) then
-						element[2] = element[1].Character.Torso.Position
+					local mainPart = Util.playerCharacterMainPart(element[1].Character)
+					if (mainPart) then
+						element[2] = mainPart.Position
 						element[3] = false
 					end
 				end
@@ -100,7 +101,8 @@ Classes.class 'TeleStairs' (function (this)
 			end
 		end
 		--//Otherwise make their record
-		self.metadata[#self.metadata+1] = {player, player.Character.Torso.Position, false, true}
+		local mainPart = Util.playerCharacterMainPart(player.Character)
+		self.metadata[#self.metadata+1] = {player, mainPart.Position, false, true}
 		return self.metadata[#self.metadata]
 	end
 
@@ -116,7 +118,8 @@ Classes.class 'TeleStairs' (function (this)
 	--//is the player in the region still?
 	function this.member:hasLeftRegion(element)
 		for _,Part in pairs (game.Workspace:FindPartsInRegion3(self.Region, nil, 100)) do
-			if(element[1]==nil or element[1].Character == nil or Part == element[1].Character.Torso) then
+			local mainPart = Util.playerCharacterMainPart(element[1].Character)
+			if(element[1]==nil or element[1].Character == nil or Part == mainPart) then
 				return false
 			end
 		end
@@ -145,21 +148,24 @@ Classes.class 'TeleStairs' (function (this)
 			return
 		end
 
-		local player = playerRef.Character
-
-		if(player~=nil and player.Torso ~= nil) then
-			local RelativePos = self.Pad1.CFrame:toObjectSpace(player.Torso.CFrame)
-			player.Torso.CFrame = self.Pad2.CFrame:toWorldSpace(RelativePos)
+		local mainPart = Util.playerCharacterMainPart(playerRef.Character)
+		if (mainPart) then
+			local RelativePos = self.Pad1.CFrame:toObjectSpace(mainPart.CFrame)
+			mainPart.CFrame = self.Pad2.CFrame:toWorldSpace(RelativePos)
 		end
 	end
 
 	--//Judge player's intention
 	function this.member:DisplacementCalculation(meta)
 		--//Get information
-		if(meta == nil or meta[1] == nil or meta[2] == nil or meta[1].Character.Torso == nil) then return end
+		if(meta == nil or meta[1] == nil or meta[2] == nil) then return end
+
+
+		local mainPart = Util.playerCharacterMainPart(meta[1].Character)
+		if not mainPart then return end
 
 		local iPos = meta[2]
-		local cPos = meta[1].Character.Torso.Position
+		local cPos = mainPart.Position
 		local Displacement_Trigger_Current = (self.trigger - cPos).magnitude
 		local Displacement_Trigger_Initial = (self.trigger - iPos).magnitude
 		local Displacement_Current_Initial = (Vector2.new(cPos.X, cPos.Z) - Vector2.new(iPos.X, iPos.Z)).magnitude --ignore jumping...
@@ -180,11 +186,11 @@ Classes.class 'TeleStairs' (function (this)
 	while(not game.Workspace:IsRegion3Empty(self.Region)) do
 		wait(self.scan_interval)
 		for _,Part in pairs (game.Workspace:FindPartsInRegion3(self.Region, nil, 100)) do
-			if(Part.Name == "Torso") then
-					local player = game.Players:GetPlayerFromCharacter(Part.Parent)
-					if(player ~= nil) then
-						self:DisplacementCalculation(self:metadataLookup(player))
-					end
+			if(Part.Name == "Torso") or (Part.Name == "HumanoidRootPart") then
+				local player = game.Players:GetPlayerFromCharacter(Part.Parent)
+				if(player ~= nil) then
+					self:DisplacementCalculation(self:metadataLookup(player))
+				end
 			end
 			self:metaMonitor()
 		end
