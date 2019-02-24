@@ -9,7 +9,7 @@ local Classes = require(projectRoot.Modules.ClassSystem)
 local Util = require(projectRoot.Modules.Utilities)
 
 -- Configuration
-local DEBUG = false
+local DEBUG = true
 local DOORS_ENABLED = true
 local TRANSPORTERS_ENABLED = true
 local CONSOLES_ENABLED = true
@@ -34,28 +34,28 @@ end
 
 createNetwork = (function (model)
 	dPrint("Creating network " .. model.Name, DEBUG)
-	
+
 	local sectionList = {}
 	local transporterList = {}
 	local ringsList = {}
 	local stairsList = {}
 	local power = nil
-	
+
 	dPrint("-> Creating sections", DEBUG)
 	for _,section in next,  model.Sections:GetChildren() do
-		
+
 		local doorList = {}
 		local lightList = {}
 		local consoleList
 		local windowGuard
-		
+
 		if DOORS_ENABLED and section:FindFirstChild"Doors" then
 			for _,door in next, section.Doors:GetChildren() do
 				local doorClass = Classes.new 'Door' (door)
 				table.insert(doorList, doorClass)
 			end
 		end
-		
+
 		lightList.neons = {}
 		lightList.lights = {}
 		if section:FindFirstChild"Lighting" then
@@ -71,16 +71,16 @@ createNetwork = (function (model)
 				end
 			end
 		end
-		
+
 		consoleList = section:FindFirstChild"Consoles" and section.Consoles:GetChildren() or {}
-		
+
 		if section:FindFirstChild"Windows" then
 			windowGuard = Classes.new 'WindowGuard' (section.Windows)
 		end
-		
+
 		local sectionClass = Classes.new 'Section' (section.Name, doorList, lightList, consoleList, windowGuard)
 		table.insert(sectionList, sectionClass)
-		
+
 		dPrint("-> -> created section " .. model.Name .. "::" .. sectionClass.name, DEBUG)
 	end
 
@@ -88,24 +88,24 @@ createNetwork = (function (model)
 		dPrint("-> Creating transporters", DEBUG)
 		for _,transporter in next, model.Transportation:GetChildren() do
 			local transClass = Classes.new 'Transporter' (transporter)
-			
+
 			for _,v in next, transporterList do
 				v:linkTransporter(transClass)
 				transClass:linkTransporter(v)
 			end
-			
+
 			table.insert(transporterList, transClass)
-			
+
 			dPrint("-> -> created transporter " .. model.Name.. "::" .. transClass.name, DEBUG)
 		end
 	end
-	
+
 	if TELESTAIRS_ENABLED and model:FindFirstChild("TeleStairs") then
 		dPrint("-> Creating telestairs", DEBUG)
 		for _,stairset in next, model.TeleStairs:GetChildren() do
-			local stairClass = Classes.new 'TeleStairs' (stairset)					
+			local stairClass = Classes.new 'TeleStairs' (stairset)
 			table.insert(stairsList, stairClass)
-					
+
 			dPrint("-> -> created telesairs " .. model.Name.. "::" .. stairClass.name, DEBUG)
 		end
 		--Linker
@@ -122,36 +122,36 @@ createNetwork = (function (model)
 			end
 		end
 	end
-	
+
 	if RING_INTERFACE_ENABLED and model:FindFirstChild"Rings" then
 		dPrint("-> Creating rings", DEBUG)
-		
+
 		for _,rings in next, model.Rings:GetChildren() do
 			local ringsClass = Classes.new 'Rings' (rings)
 			table.insert(ringsList, ringsClass)
 		end
 	end
-	
+
 	if POWER_ENABLED and model:FindFirstChild"Power" then
 		power = Classes.new 'Power' (model.Power)
 	end
-	
+
 	local networkClass = Classes.new 'Network' (model, sectionList, transporterList, train, ringsList, power)
-	
+
 	if CONSOLES_ENABLED then
 		local consoleManager = Classes.new 'ConsoleManager' (networkClass)
-		
+
 		dPrint("-> Created console manaager", DEBUG)
 	end
-	
+
 	if OVERRIDE_ENABLED then
 		if model:FindFirstChild"Override" then
-			local override = new Classes.new 'Override'(model.Override, networkClass)
-			
+			local override = Classes.new 'Override'(model.Override, networkClass)
+
 			dPrint("-> Created override", DEBUG)
 		end
 	end
-	
+
 	return networkClass
 end)
 

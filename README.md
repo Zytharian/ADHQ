@@ -6,9 +6,9 @@ This repository contains the source code of the final outpost, [Anquietas Videum
 
 ### How do I get set up?
 
-Firstly, this project heavily depends on the class system located in [this repository](https://github.com/Zytharian/LuaLibs). 
+Firstly, this project heavily depends on the class system located in [this repository](https://github.com/Zytharian/LuaLibs).
 
-So how do you get set up? The easiest way is to open the place in edit mode to get a setup of the HQ's network that is already functional and work off of that. 
+So how do you get set up? The easiest way is to open the place in edit mode to get a setup of the HQ's network that is already functional and work off of that. You can access the place either via the Roblox website (it is uncopylocked) or in the [place-file-mirror](place-file-mirror) folder of this repository.
 
 As a quick overview, the in-game hierarchy is as follows, leaving the workspace and model hierarchy to what you will find by opening the place in edit mode.
 
@@ -23,7 +23,7 @@ As a quick overview, the in-game hierarchy is as follows, leaving the workspace 
 * Game.ReplicatedStorage
     * Everything in LocalModules
         * A Gui named ConsoleGui in the LocalModules/Gui
-    * A SurfaceGui named TransporterSurfaceGui 
+    * A SurfaceGui named TransporterSurfaceGui
 * Game.StarterGui
     * Everything in Local excluding subdirectories
 * Game.ReplicatedStorage.StunnerModels["AD Stunner"]

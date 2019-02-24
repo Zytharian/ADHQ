@@ -14,11 +14,11 @@ require(projectRoot.Modules.StandardClasses)
 -- Initialize server classes
 local numClasses = 0
 local dPrint = Util.Debug.print
-local DEBUG = false
+local DEBUG = true
 
 initClasses = (function (obj)
 	for _,v in next, obj:GetChildren() do
-		print("-> Init class " .. v.Name)
+		dPrint("-> Init class " .. v.Name, DEBUG)
 		numClasses = numClasses + 1
 		require(v)
 		initClasses(v)

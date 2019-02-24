@@ -40,11 +40,9 @@ end)
 UTIL.getPlayersInRegion3 = (function (region, ignore)
 	local partList = workspace:FindPartsInRegion3(region, ignore, 100)
 	local list = {}
-	
+
 	for _,v in next, game.Players:GetPlayers() do
-		if v.Character and v.Character:FindFirstChild"Torso" 
-			and v.Character:FindFirstChild"Humanoid" and v.Character.Humanoid.Health > 0 then
-			
+		if UTIL.playerAlive(v) then
 			for _,part in next, partList do
 				if part:IsDescendantOf(v.Character) then
 					table.insert(list, v)
@@ -53,35 +51,61 @@ UTIL.getPlayersInRegion3 = (function (region, ignore)
 			end
 		end
 	end
-	
+
 	return list
 end)
 
 UTIL.playerAlive = (function (player)
 	local character = player.Character
-	if not character or not character:FindFirstChild"Humanoid" or character.Humanoid.Health == 0 
-	   or not character:FindFirstChild"Torso" or not character.Torso:IsA"BasePart" then
-		
+	if not character
+		or not character:FindFirstChild"Humanoid"
+		or character.Humanoid.Health == 0
+		or not UTIL.playerCharacterMainPart(character)
+	then
+
 		return false
 	end
-	
+
 	return true
 end)
 
 UTIL.playerNearModel = (function (player, model, maxDistanceFromAnyPart)
-	if not player.Character or not player.Character:FindFirstChild"Torso" then
+	local main = UTIL.playerCharacterMainPart(player.Character)
+
+	if not main then
 		return false
 	end
 
-	local torsoPos = player.Character.Torso.Position
-	
+	local torsoPos = main.Position
 	for _,v in next, UTIL.findAll(model, "BasePart") do
 		if (torsoPos - v.Position).magnitude < maxDistanceFromAnyPart then
 			return true
 		end
 	end
-	
+
 	return false
+end)
+
+UTIL.playerCharacterMainPart = (function (character)
+	if not character or not character:IsA("Model") then
+		return nil
+	end
+
+	if character.PrimaryPart then
+		return character.PrimaryPart
+	end
+
+	local hrp = character:FindFirstChild("HumanoidRootPart")
+	if hrp and hrp:IsA("BasePart") then
+		return hrp
+	end
+
+	local torso = character:FindFirstChild("Torso")
+	if torso and torso:IsA("BasePart") then
+		return torso
+	end
+
+	return nil
 end)
 
 -- Welding util module
@@ -89,14 +113,18 @@ UTIL.Welding = {}
 UTIL.Welding._superList = {} -- { table = true }
 
 UTIL.Welding.weld = (function (P0, P1, list, CustomJointName)
-	local weld = Instance.new(CustomJointName or "Weld", game.JointsService)
-	weld.Part0, weld.Part1 = P0, P1
-	weld.C1 = weld.Part1.CFrame:toObjectSpace(weld.Part0.CFrame) 
-	
+	local weld
+
+	weld = Instance.new(CustomJointName or "Weld")
+	weld.C1 = P1.CFrame:toObjectSpace(P0.CFrame)
+	weld.Part0 = P0
+	weld.Part1 = P1
+	weld.Parent = game.JointsService
+
 	if list then
 		list[weld] = true
 	end
-	
+
 	return weld
 end)
 

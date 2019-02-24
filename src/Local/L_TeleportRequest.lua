@@ -3,6 +3,9 @@
 -- Services
 local Replicated = game:GetService("ReplicatedStorage")
 
+-- Includes
+local Util = require(Replicated.Util)
+
 -- Internal vars
 local netModel = workspace:WaitForChild("1_HQ_Network")
 local event = Replicated:WaitForChild("CR_TeleportRequest")
@@ -15,13 +18,13 @@ event.OnClientEvent:connect(function (args)
 		return
 	end
 	isTeleporting = true
-	
+
 	local walkSpeed = 16
 	if player.Character and player.Character:FindFirstChild"Humanoid" then
 		walkSpeed = player.Character.Humanoid.WalkSpeed
 		player.Character.Humanoid.WalkSpeed = 0
 	end
-	
+
 	local gui = Instance.new("ScreenGui", player.PlayerGui)
 	local frame = Instance.new("Frame", gui)
 	frame.BackgroundTransparency = 1
@@ -34,8 +37,9 @@ event.OnClientEvent:connect(function (args)
 		wait()
 	end
 
-	if args[1] and player.Character and player.Character:FindFirstChild"Torso" then
-		player.Character.Torso.CFrame = args[1]
+	local mainPart = Util.playerCharacterMainPart(player.Character)
+	if args[1] and mainPart then
+		mainPart.CFrame = args[1]
 	end
 
 	for i=90, 0, -4.5 do
@@ -44,10 +48,10 @@ event.OnClientEvent:connect(function (args)
 	end
 
 	gui:Destroy()
-	
+
 	if player.Character and player.Character:FindFirstChild"Humanoid" then
 		player.Character.Humanoid.WalkSpeed = walkSpeed
 	end
-	
+
 	isTeleporting = false
 end)

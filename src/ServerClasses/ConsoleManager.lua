@@ -6,6 +6,7 @@ local RS = game:GetService("ReplicatedStorage")
 
 -- Includes
 local Classes = require(projectRoot.Modules.ClassSystem)
+local Access = require(projectRoot.Modules.AccessManagement)
 local Util = require(projectRoot.Modules.Utilities)
 local LEnums = require(projectRoot.Modules.Enums)
 local CEnums = require(RS.CommandEnums)
@@ -93,7 +94,7 @@ Classes.class 'ConsoleManager' (function (this)
 
 			-- Notify players of lockout
 			for _,player in next, game.Players:GetPlayers() do
-				if not _G.Access.IsPrivilegedUser(player) then
+				if not Access.IsPrivilegedUser(player) then
 					RS.CON_E_NetworkUpdate:FireAllClients(nil, self.networkId, nil)
 				end
 			end
@@ -122,7 +123,7 @@ Classes.class 'ConsoleManager' (function (this)
 
 			if console.section:getMode() == LEnums.SectionMode:GetItem"Unpowered" then
 				return nil, nil, nil, "No power"
-			elseif self.network.lockoutEnabled and not _G.Access.IsPrivilegedUser(player) then
+			elseif self.network.lockoutEnabled and not Access.IsPrivilegedUser(player) then
 				return nil, nil, nil, "Console lockout"
 			end
 
@@ -146,7 +147,7 @@ Classes.class 'ConsoleManager' (function (this)
 			if self.network.lockoutEnabled then
 				status = "Console lockout"
 			end
-			
+
 			return dat, conType, self.networkId, status
 		end)
 		RS.CON_F_GetBatchInformation.OnServerInvoke = lastGetBatch
@@ -172,7 +173,7 @@ Classes.class 'ConsoleManager' (function (this)
 
 			if console.section:getMode() == LEnums.SectionMode:GetItem"Unpowered" then
 				return
-			elseif self.network.lockoutEnabled and not _G.Access.IsPrivilegedUser(player) then
+			elseif self.network.lockoutEnabled and not Access.IsPrivilegedUser(player) then
 				return
 			end
 
