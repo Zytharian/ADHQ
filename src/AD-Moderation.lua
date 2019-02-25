@@ -47,7 +47,7 @@ Changes in version 2.1:
 
 
 AllowTeleport = true --!teleport
-AllowShutdown = true --!shutdown
+AllowShutdown = false --!shutdown
 AllowKill = true --!kill
 
 -------------
@@ -55,6 +55,8 @@ AllowKill = true --!kill
 -------------
 
 local Prefix = "!"
+
+local Access = require(script.Parent.Modules.AccessManagement)
 
 local AD_Id = 1092
 local IsPRI = false --Kicks players that aren't in AD when true.
@@ -84,14 +86,16 @@ local API = {} --_G.ADM
 local GetSecurityLevel = (function (Plyr, DoNotInclueCreator)
 	local Rank = Plyr:GetRankInGroup(AD_Id)
 
-	if BannedPlayers[Plyr.Name:lower()] then 
+	if BannedPlayers[Plyr.Name:lower()] then
 		return -1 --banned
 	elseif not DoNotInclueCreator and Plyr.userId == game.CreatorId then
-		if RankRef[Rank] > 4 then 
+		if RankRef[Rank] > 4 then
 			return RankRef[Rank]
 		else
 			return 4
 		end
+	elseif Access.HasCommandAccess(Plyr) then -- Game admins have rank 4
+		return RankRef[250]
 	end
 
 	return RankRef[Rank] or 1 --1 = AD member
@@ -184,7 +188,7 @@ end)
 Commands[5].run = {(function (Plyr, Msg)
 	local fn, LoadErr = loadstring("function run(adm) "..Msg.." end run(...)")
 	if fn then
-		local Status, RunErr = ypcall(fn, 
+		local Status, RunErr = ypcall(fn,
 			{
 				Prefix=Prefix,AD_Id=AD_Id,IsPRI=IsPRI,Commands=Commands,RankRef=RankRef,API=API,Plyr=Plyr,
 				GetSecurityLevel=GetSecurityLevel,GetAvailableCommands=GetAvailableCommands,

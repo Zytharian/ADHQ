@@ -36,8 +36,9 @@ Classes.class 'Section' (function (this)
 			table doors
 			table lights
 			table consoles
+			table consoleLights
 			LEnums::SectionMode
-			
+
 			for lights -- {lights = {Rbx::Light = Rbx::Color3}; neons = {Rbx::BasePart = Rbx::BrickColor}
 	]]
 
@@ -49,9 +50,19 @@ Classes.class 'Section' (function (this)
 		self.lightsEnabled = true
 
 		self.consoles = consoles
+		self.consoleLights = {}
 
 		self.mode = LEnums.SectionMode:GetItem"Normal"
 		self.modeChanged = Classes.new 'Signal' ()
+
+		for _,console in pairs(self.consoles) do
+			local neons = Util.findAll(console, "BasePart")
+			for _,part in pairs(neons) do
+				if (part.Material == Enum.Material.Neon) then
+					table.insert(self.consoleLights, part)
+				end
+			end
+		end
 	end
 
 	-- Getters
@@ -116,24 +127,8 @@ Classes.class 'Section' (function (this)
 	end
 
 	function this.member:setConsoleLights(enabled)
-		for i,v in next, self.consoles do
-			local unit = v:FindFirstChild"Unit"
-
-			local controls = unit and unit:FindFirstChild"Controls" or nil
-			local buttons = controls and controls:FindFirstChild"Buttons" or nil
-
-			local neon = unit and unit:FindFirstChild"Neon" or nil
-			
-			if buttons then
-				for _,part in next, buttons:GetChildren() do
-					part.Material = enabled and Enum.Material.Neon or Enum.Material.SmoothPlastic
-				end
-			end
-			if neon then
-				for _,part in next, neon:GetChildren() do
-					part.Material = enabled and Enum.Material.Neon or Enum.Material.SmoothPlastic
-				end
-			end
+		for _,part in next, self.consoleLights do
+			part.Material = enabled and Enum.Material.Neon or Enum.Material.SmoothPlastic
 		end
 	end
 

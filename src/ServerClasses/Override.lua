@@ -50,7 +50,7 @@ cs.class 'Override' (function (this)
 		self.network = network
 		self.propagator = cs.new 'EventPropagator'("ClickDetector", "MouseClick")
 		self.isUp = true
-		self.maxDistanceFromButton = 5
+		self.maxDistanceFromButton = 8
 		self.debounce = false
 
 		local CD = Instance.new("ClickDetector", model.Button)

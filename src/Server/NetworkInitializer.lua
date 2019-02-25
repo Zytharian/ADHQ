@@ -68,6 +68,7 @@ createNetwork = (function (model)
 				end
 				if v.Name == "TrueLight" then -- Hide massive gray TrueLight parts
 					v.Transparency = 1
+					v.CanCollide = false
 				end
 			end
 		end
