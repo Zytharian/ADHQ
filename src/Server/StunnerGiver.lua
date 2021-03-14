@@ -9,7 +9,7 @@ local debris      = game:GetService("Debris")
 local Access = require(projectRoot.Modules.AccessManagement)
 
 -- Configuration
-local tool = RS.StunnerModels["AD Stunner"]
+local tools = { RS.StunnerModels["AD Stunner"], RS["Gate Remote"] }
 local giverPart = workspace["1_HQ_Network"].StunnerGiverPart
 local maxClickDistance = 8
 local toolInWorkspaceLifetime = 60
@@ -26,6 +26,18 @@ local toolInWorkspaceLifetime = 60
 local Util = require(projectRoot.Modules.Utilities)
 local Classes = require(projectRoot.Modules.ClassSystem)
 
+game.Players.PlayerAdded:connect(function (player)
+	player.CharacterAdded:connect(function (character)
+		if Access.IsPrivilegedUser(player) then
+			for _,tool in pairs(tools) do
+				local copy = tool:Clone()
+				copy.Parent = player:FindFirstChild"Backpack"
+			end
+		end
+	end)
+end)
+
+-- Click event
 repeat wait() until Classes.ClassExists"EventPropagator"
 
 local event = Classes.new 'EventPropagator'("ClickDetector", "MouseClick")
@@ -33,22 +45,16 @@ local click = Instance.new("ClickDetector", giverPart)
 
 event.eventFired:Connect(function (player, instance)
 	if not Util.playerAlive(player) or not player:FindFirstChild"Backpack" then return end
-	if player.Character:FindFirstChild(tool.Name) or player.Backpack:FindFirstChild(tool.Name) then return end
 
-	local copy = tool:Clone()
-	copy.Parent = player.Backpack
+	for _,tool in pairs(tools) do
+		if not player.Character:FindFirstChild(tool.Name) and not player.Backpack:FindFirstChild(tool.Name) then
+			local copy = tool:Clone()
+			copy.Parent = player.Backpack
+		end
+	end
 end)
 click.MaxActivationDistance = maxClickDistance
 event:addObject(click)
-
-game.Players.PlayerAdded:connect(function (player)
-	player.CharacterAdded:connect(function (character)
-		if Access.IsPrivilegedUser(player) then
-			local copy = tool:Clone()
-			copy.Parent = player:FindFirstChild"Backpack"
-		end
-	end)
-end)
 
 -- Clean up tools that have been lying around for a while
 local workspaceTools = {} -- [Rbx::Tool] = timeAddedToWorkspace
